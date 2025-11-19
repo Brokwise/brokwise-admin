@@ -1,5 +1,5 @@
 "use client";
-import { BrokersTable } from "./table";
+
 import { BrokersDataStats } from "./stats";
 import { DataTable } from "./brokers/data-table";
 import { columns } from "./brokers/columns";

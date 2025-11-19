@@ -15,6 +15,7 @@ import {
   Users,
   Settings,
   LogOut,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -56,6 +57,14 @@ const AppSidebar = () => {
               <Link href="/brokers">
                 <Users />
                 <span>Brokers</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Properties">
+              <Link href="/properties">
+                <Building2 />
+                <span>Properties</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
