@@ -89,6 +89,8 @@ export function DataTable<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const broker = row.original as any;
 
       return (

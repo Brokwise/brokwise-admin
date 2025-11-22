@@ -1,16 +1,10 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBroker } from "@/hooks/useBroker";
 import { Users } from "lucide-react";
 import { useMemo } from "react";
 export const BrokersDataStats = () => {
-  const { brokers, isLoadingBrokers, errorBrokers } = useBroker();
+  const { brokers } = useBroker();
 
   const stats = useMemo(() => {
     if (!brokers)
@@ -40,7 +34,7 @@ export const BrokersDataStats = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-5">
-        <Card className="bg-blue-100 shadow-none border-blue-300 border">
+        <Card className="bg-blue-100 dark:bg-blue-900 shadow-none border-blue-300 dark:border-blue-800 border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Brokers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -49,7 +43,7 @@ export const BrokersDataStats = () => {
             <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
-        <Card className="bg-green-100 shadow-none border-green-300 border">
+        <Card className="bg-green-100 dark:bg-green-900 shadow-none border-green-300 dark:border-green-800 border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
           </CardHeader>
@@ -57,7 +51,7 @@ export const BrokersDataStats = () => {
             <div className="text-2xl font-bold ">{stats.approved}</div>
           </CardContent>
         </Card>
-        <Card className="bg-yellow-100 shadow-none border-yellow-300 border">
+        <Card className="bg-yellow-100 dark:bg-yellow-900 shadow-none border-yellow-300 dark:border-yellow-800 border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
@@ -65,7 +59,7 @@ export const BrokersDataStats = () => {
             <div className="text-2xl font-bold ">{stats.pending}</div>
           </CardContent>
         </Card>
-        <Card className="bg-red-100 shadow-none border-red-300 border">
+        <Card className="bg-red-100 dark:bg-red-900 shadow-none border-red-300 dark:border-red-800 border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Incomplete</CardTitle>
           </CardHeader>
@@ -73,7 +67,7 @@ export const BrokersDataStats = () => {
             <div className="text-2xl font-bold ">{stats.incomplete}</div>
           </CardContent>
         </Card>
-        <Card className="bg-gray-100 shadow-none border-gray-300 border">
+        <Card className="bg-gray-100 dark:bg-gray-900 shadow-none border-gray-300 dark:border-gray-800 border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Blacklisted</CardTitle>
           </CardHeader>

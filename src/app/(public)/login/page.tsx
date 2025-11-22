@@ -46,7 +46,7 @@ const LoginPage = () => {
     },
   });
 
-  const { mutate, isPending, error } = useMutation<
+  const { mutate, isPending } = useMutation<
     ApiResponse<{
       admin: {
         _id: string;

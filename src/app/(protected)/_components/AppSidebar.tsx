@@ -13,16 +13,18 @@ import {
   HomeIcon,
   LayoutDashboard,
   Users,
-  Settings,
   LogOut,
   Building2,
+  SunMoon,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { useAuthStore } from "@/stores/authStore";
+import { useTheme } from "next-themes";
 
 const AppSidebar = () => {
   const logout = useAuthStore((state) => state.logout);
+  const { theme, setTheme } = useTheme();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -54,7 +56,7 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Brokers">
-              <Link href="/brokers">
+              <Link href="/">
                 <Users />
                 <span>Brokers</span>
               </Link>
@@ -68,18 +70,27 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          {/* <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <Link href="/settings">
                 <Settings />
                 <span>Settings</span>
               </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem>
+          </SidebarMenuItem> */}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Theme"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              <SunMoon />
+              <span>Theme</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem
             onClick={() => {
               logout();

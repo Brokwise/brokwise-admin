@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "Brokwise Admin",
   description: "Brokwise Admin Dashboard",
 };
+import { ThemeProvider } from "next-themes";
 
 export default function RootLayout({
   children,
@@ -26,14 +27,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProviderComponent>
-          <Toaster />
-          {children}
-        </QueryClientProviderComponent>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryClientProviderComponent>
+            <Toaster />
+            {children}
+          </QueryClientProviderComponent>
+        </ThemeProvider>
       </body>
     </html>
   );

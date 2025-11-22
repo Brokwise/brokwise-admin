@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ListingStatus,
-  Property,
-  PropertyCategory,
-  PropertyType,
-} from "@/types/properties";
+import { ListingStatus, Property } from "@/types/properties";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -109,11 +104,18 @@ export const columns: ColumnDef<Property>[] = [
         <div className="relative h-10 w-16 overflow-hidden rounded-md">
           {image ? (
             <Image
-              src={image}
+              src={
+                image.includes("firebasestorage.googleapis.com")
+                  ? image
+                  : "/placeholder.webp"
+              }
               alt="Property"
               fill
               className="object-cover"
               sizes="64px"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.webp";
+              }}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
