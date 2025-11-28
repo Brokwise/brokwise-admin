@@ -166,4 +166,16 @@ export interface Property {
   // Timestamps
   createdAt: string;
   updatedAt: string;
+  deletingStatus?: "pending" | "rejected" | "approved" | null;
+}
+
+export interface PropertyDeleteRequest {
+  _id: string;
+  propertyId: string;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  brokerName: string;
+  brokerId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

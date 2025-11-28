@@ -55,7 +55,6 @@ import {
   ChevronsRight,
   Loader2,
   AlertCircle,
-  Plus,
 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
@@ -65,7 +64,7 @@ interface DataTableProps<TData, TValue> {
   error?: Error | null;
 }
 
-export function DataTable<TData, TValue>({
+export function DeleteRequestsTable<TData, TValue>({
   columns,
   data,
   isLoading = false,
@@ -90,20 +89,13 @@ export function DataTable<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const property = row.original as any;
-      const broker = property.listedBy || {};
+      const request = row.original as any;
 
       return (
-        property.propertyId?.toLowerCase().includes(search) ||
-        property.address?.toLowerCase().includes(search) ||
-        property.propertyCategory?.toLowerCase().includes(search) ||
-        property.propertyType?.toLowerCase().includes(search) ||
-        broker.firstName?.toLowerCase().includes(search) ||
-        broker.lastName?.toLowerCase().includes(search) ||
-        broker.mobile?.includes(search) ||
-        broker.email?.toLowerCase().includes(search)
+        request.propertyId?.toLowerCase().includes(search) ||
+        request.brokerName?.toLowerCase().includes(search) ||
+        request.reason?.toLowerCase().includes(search)
       );
     },
     state: {
@@ -122,26 +114,18 @@ export function DataTable<TData, TValue>({
   const handleStatusFilter = (value: string) => {
     setStatusFilter(value);
     if (value === "all") {
-      table.getColumn("listingStatus")?.setFilterValue(undefined);
+      table.getColumn("status")?.setFilterValue(undefined);
     } else {
-      table.getColumn("listingStatus")?.setFilterValue(value);
+      table.getColumn("status")?.setFilterValue(value);
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          <div className="flex justify-between">
-            Properties
-            <Button variant="outline">
-              <Plus className="h-4 w-4 mr-2" /> Add Property
-            </Button>
-          </div>
-        </CardTitle>
+        <CardTitle>Delete Requests</CardTitle>
         <CardDescription>
-          Manage and view all property listings with advanced filtering and
-          sorting
+          Review and manage property deletion requests from brokers
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -150,7 +134,7 @@ export function DataTable<TData, TValue>({
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by ID, address, category, type, or broker..."
+                placeholder="Search by Property ID, Broker, or Reason..."
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="pl-10"
@@ -165,16 +149,9 @@ export function DataTable<TData, TValue>({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="PENDING_APPROVAL">
-                    Pending Approval
-                  </SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="SOLD">Sold</SelectItem>
-                  <SelectItem value="RENTED">Rented</SelectItem>
-                  <SelectItem value="EXPIRED">Expired</SelectItem>
-                  <SelectItem value="DELISTED">Delisted</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -211,7 +188,7 @@ export function DataTable<TData, TValue>({
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
               Showing {table.getFilteredRowModel().rows.length} of {data.length}{" "}
-              properties
+              requests
             </div>
             <div className="flex items-center gap-2">
               <span>Rows per page:</span>
@@ -248,7 +225,7 @@ export function DataTable<TData, TValue>({
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Failed to load properties. Please try again later.
+              Failed to load delete requests. Please try again later.
             </AlertDescription>
           </Alert>
         )}
@@ -299,7 +276,7 @@ export function DataTable<TData, TValue>({
                         colSpan={columns.length}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        No properties found matching your criteria.
+                        No delete requests found.
                       </TableCell>
                     </TableRow>
                   )}
