@@ -16,6 +16,7 @@ import {
   LogOut,
   Building2,
   SunMoon,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -67,6 +68,14 @@ const AppSidebar = () => {
               <Link href="/properties">
                 <Building2 />
                 <span>Properties</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Enquiries">
+              <Link href="/enquiries">
+                <MessageCircle />
+                <span>Enquiries</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
