@@ -93,17 +93,35 @@ export function DataTable<TData, TValue>({
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const property = row.original as any;
-      const broker = property.listedBy || {};
+      const address = property.address;
+
+      // Handle listedBy as string or object
+      let brokerSearchTerm = "";
+      if (typeof property.listedBy === "string") {
+        brokerSearchTerm = property.listedBy;
+      } else if (
+        typeof property.listedBy === "object" &&
+        property.listedBy !== null
+      ) {
+        const broker = property.listedBy;
+        brokerSearchTerm = `${broker.firstName || ""} ${
+          broker.lastName || ""
+        } ${broker.mobile || ""} ${broker.email || ""}`;
+      }
+
+      const addressMatch = address
+        ? address.address?.toLowerCase().includes(search) ||
+          address.city?.toLowerCase().includes(search) ||
+          address.state?.toLowerCase().includes(search) ||
+          address.pincode?.includes(search)
+        : false;
 
       return (
         property.propertyId?.toLowerCase().includes(search) ||
-        property.address?.toLowerCase().includes(search) ||
+        addressMatch ||
         property.propertyCategory?.toLowerCase().includes(search) ||
         property.propertyType?.toLowerCase().includes(search) ||
-        broker.firstName?.toLowerCase().includes(search) ||
-        broker.lastName?.toLowerCase().includes(search) ||
-        broker.mobile?.includes(search) ||
-        broker.email?.toLowerCase().includes(search)
+        brokerSearchTerm.toLowerCase().includes(search)
       );
     },
     state: {

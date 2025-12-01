@@ -10,15 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const getStatusBadge = (status: BrokerStatus) => {
   const variants: Record<
@@ -207,80 +200,11 @@ export const columns: ColumnDef<Broker>[] = [
       const broker = row.original;
       return (
         <div className="text-right">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                View Details <ArrowRight className="ml-2 w-3 h-3" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Broker Details</DialogTitle>
-              </DialogHeader>
-              <DialogDescription>
-                <div className="flex flex-col gap-3 text-foreground">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Name</p>
-                    <p className="text-sm font-medium">
-                      {broker.firstName} {broker.lastName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Email</p>
-                    <p className="text-sm">{broker.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Mobile</p>
-                    <p className="text-sm">{broker.mobile}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Company</p>
-                    <p className="text-sm">{broker.companyName}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">City</p>
-                      <p className="text-sm">{broker.city}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Experience
-                      </p>
-                      <p className="text-sm">
-                        {broker.yearsOfExperience} years
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">RERA Number</p>
-                    <p className="text-sm font-mono">{broker.reraNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">GSTIN</p>
-                    <p className="text-sm font-mono">{broker.gstin}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Office Address
-                    </p>
-                    <p className="text-sm">{broker.officeAddress}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Status</p>
-                    <div className="mt-1">{getStatusBadge(broker.status)}</div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Broker ID</p>
-                    <p className="text-sm font-mono">{broker.brokerId}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Joined</p>
-                    <p className="text-sm">{formatDate(broker.createdAt)}</p>
-                  </div>
-                </div>
-              </DialogDescription>
-            </DialogContent>
-          </Dialog>
+          <Link href={`/brokers/${broker._id}`}>
+            <Button variant="outline" size="sm">
+              View Details <ArrowRight className="ml-2 w-3 h-3" />
+            </Button>
+          </Link>
         </div>
       );
     },

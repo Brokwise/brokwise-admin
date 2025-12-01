@@ -69,9 +69,16 @@ export interface GeoLocation {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
+export interface Address {
+  state: string;
+  city: string;
+  address: string;
+  pincode: string;
+}
+
 export interface RentalIncome {
-  amount: number;
-  period: string;
+  min: number;
+  max: number;
 }
 
 export interface Broker {
@@ -87,12 +94,12 @@ export interface Broker {
 
 export interface Property {
   _id: string;
-  propertyId: string | null; // Human-readable ID (PROP-000001)
+  propertyId?: string; // Human-readable ID (PROP-000001)
 
   // Core & Common
   propertyCategory: PropertyCategory;
   propertyType: PropertyType;
-  address: string;
+  address: Address;
   rate: number;
   totalPrice: number;
   listingStatus: ListingStatus;
@@ -100,7 +107,6 @@ export interface Property {
 
   // Location
   location: GeoLocation; // For the map
-  localities?: string[]; // "Add Localities (Select multiple)"
 
   // Media
   featuredMedia: string; // Featured (JPEG image or MP4 video)
@@ -108,9 +114,10 @@ export interface Property {
   floorPlans?: string[]; // Site Plan (PDF Doc or JPEG image)
 
   // Relational IDs
-  listedBy: Broker; // Populated broker data from API
-  companyId?: string; // Ref: 'Company'
+  listedBy: string; // Ref: 'Broker'
+  companyId: string; // Ref: 'Company'
   verifiedBy?: string; // Ref: 'Admin' | 'Manager'
+  adminId?: string; // Ref: 'Admin'
 
   // Metadata
   isFeatured: boolean;
@@ -166,7 +173,7 @@ export interface Property {
   // Timestamps
   createdAt: string;
   updatedAt: string;
-  deletingStatus?: "pending" | "rejected" | "approved" | null;
+  deletingStatus?: "pending" | "approved" | "rejected" | null;
 }
 
 export interface PropertyDeleteRequest {

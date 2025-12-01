@@ -11,14 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import Link from "next/link";
 import { ArrowUpDown, ArrowRight, MapPin } from "lucide-react";
 import { useUpdatePropertyStatus } from "@/hooks/useProperty";
 import Image from "next/image";
@@ -182,11 +175,15 @@ export const columns: ColumnDef<Property>[] = [
     accessorKey: "address",
     header: "Location",
     cell: ({ row }) => {
-      const address = row.getValue("address") as string;
+      const address = row.original.address;
+      const formattedAddress = `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`;
       return (
-        <div className="max-w-[200px] truncate text-sm" title={address}>
+        <div
+          className="max-w-[200px] truncate text-sm"
+          title={formattedAddress}
+        >
           <MapPin className="mr-1 inline-block h-3 w-3 text-muted-foreground" />
-          {address}
+          {address.city}, {address.state}
         </div>
       );
     },
@@ -196,12 +193,31 @@ export const columns: ColumnDef<Property>[] = [
     header: "Listed By",
     cell: ({ row }) => {
       const broker = row.original.listedBy;
+
+      // Handle if broker is an object (old data) or string ID (new type)
+      if (typeof broker === "object" && broker !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const brokerObj = broker as any;
+        return (
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">
+              {brokerObj.firstName} {brokerObj.lastName}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {brokerObj.mobile}
+            </span>
+          </div>
+        );
+      }
+
       return (
         <div className="flex flex-col">
-          <span className="text-sm font-medium">
-            {broker.firstName} {broker.lastName}
+          <span
+            className="text-sm font-medium truncate max-w-[150px]"
+            title={broker as string}
+          >
+            ID: {broker}
           </span>
-          <span className="text-xs text-muted-foreground">{broker.mobile}</span>
         </div>
       );
     },
@@ -243,144 +259,11 @@ export const columns: ColumnDef<Property>[] = [
     cell: ({ row }) => {
       const property = row.original;
       return (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 px-2">
-              View <ArrowRight className="ml-2 h-3 w-3" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Property Details</DialogTitle>
-              <DialogDescription>ID: {property.propertyId}</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {/* Media Preview */}
-              <div className="relative h-48 w-full overflow-hidden rounded-lg">
-                {property.featuredMedia ? (
-                  <Image
-                    src={property.featuredMedia}
-                    alt="Featured"
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-muted">
-                    No Image
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                    Price
-                  </h4>
-                  <p className="text-lg font-bold">
-                    {formatPrice(property.totalPrice)}
-                  </p>
-                  {property.isPriceNegotiable && (
-                    <Badge variant="outline" className="mt-1">
-                      Negotiable
-                    </Badge>
-                  )}
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                    Rate
-                  </h4>
-                  <p>
-                    {formatPrice(property.rate)} / {property.sizeUnit || "unit"}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                  Description
-                </h4>
-                <p className="text-sm">{property.description}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                    Category
-                  </h4>
-                  <p className="text-sm">{property.propertyCategory}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                    Type
-                  </h4>
-                  <p className="text-sm">{property.propertyType}</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                    Size
-                  </h4>
-                  <p className="text-sm">
-                    {property.size} {property.sizeUnit}
-                  </p>
-                </div>
-                {property.facing && (
-                  <div>
-                    <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                      Facing
-                    </h4>
-                    <p className="text-sm">{property.facing}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-4 mt-2">
-                <h4 className="font-semibold mb-2">Location</h4>
-                <p className="text-sm">{property.address}</p>
-                {property.localities && property.localities.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {property.localities.map((loc, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {loc}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-4 mt-2">
-                <h4 className="font-semibold mb-2">Broker Information</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Name:</span>{" "}
-                    {property.listedBy.firstName} {property.listedBy.lastName}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Email:</span>{" "}
-                    {property.listedBy.email}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Mobile:</span>{" "}
-                    {property.listedBy.mobile}
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Broker ID:</span>{" "}
-                    {property.listedBy.brokerId}
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-4 mt-2">
-                <h4 className="font-semibold mb-2">Status</h4>
-                <div className="flex items-center gap-4">
-                  {getStatusBadge(property.listingStatus)}
-                  <div className="text-xs text-muted-foreground">
-                    Created: {formatDate(property.createdAt)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Link href={`/properties/${property._id}`}>
+          <Button variant="outline" size="sm" className="h-8 px-2">
+            View <ArrowRight className="ml-2 h-3 w-3" />
+          </Button>
+        </Link>
       );
     },
   },
