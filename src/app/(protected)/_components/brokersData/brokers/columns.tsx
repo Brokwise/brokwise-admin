@@ -2,7 +2,6 @@
 import { Broker, BrokerStatus, useBrokerStatusUpdate } from "@/hooks/useBroker";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -12,28 +11,6 @@ import {
 } from "@/components/ui/select";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
-
-const getStatusBadge = (status: BrokerStatus) => {
-  const variants: Record<
-    BrokerStatus,
-    {
-      variant: "default" | "secondary" | "destructive" | "outline";
-      label: string;
-    }
-  > = {
-    approved: { variant: "default", label: "Approved" },
-    pending: { variant: "secondary", label: "Pending" },
-    incomplete: { variant: "outline", label: "Incomplete" },
-    blacklisted: { variant: "destructive", label: "Blacklisted" },
-  };
-
-  const config = variants[status];
-  return (
-    <Badge variant={config.variant} className="capitalize">
-      {config.label}
-    </Badge>
-  );
-};
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);

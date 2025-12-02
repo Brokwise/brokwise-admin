@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useProperty, useUpdatePropertyStatus } from "@/hooks/useProperty";
-import { ListingStatus, Property } from "@/types/properties";
+import { ListingStatus } from "@/types/properties";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, MapPin } from "lucide-react";
@@ -300,28 +300,27 @@ const PropertyDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               {typeof property.listedBy === "object" ? (
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <>
                   <div>
                     <span className="text-muted-foreground block text-xs mb-1">
                       Name
                     </span>
                     <span className="font-medium">
-                      {(property.listedBy as any).firstName}{" "}
-                      {(property.listedBy as any).lastName}
+                      {(property.listedBy as unknown as { firstName: string }).firstName}{" "}
+                      {(property.listedBy as unknown as { lastName: string }).lastName}
                     </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground block text-xs mb-1">
                       Mobile
                     </span>
-                    <span>{(property.listedBy as any).mobile}</span>
+                    <span>{(property.listedBy as unknown as { mobile: string }).mobile}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground block text-xs mb-1">
                       Email
                     </span>
-                    <span>{(property.listedBy as any).email}</span>
+                    <span>{(property.listedBy as unknown as { email: string }).email}</span>
                   </div>
                 </>
               ) : (

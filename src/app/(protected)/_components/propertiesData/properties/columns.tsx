@@ -3,7 +3,6 @@
 import { ListingStatus, Property } from "@/types/properties";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -15,60 +14,6 @@ import Link from "next/link";
 import { ArrowUpDown, ArrowRight, MapPin } from "lucide-react";
 import { useUpdatePropertyStatus } from "@/hooks/useProperty";
 import Image from "next/image";
-
-const getStatusBadge = (status: ListingStatus) => {
-  const variants: Record<
-    ListingStatus,
-    {
-      variant: "default" | "secondary" | "destructive" | "outline";
-      label: string;
-      className?: string;
-    }
-  > = {
-    ACTIVE: {
-      variant: "default",
-      label: "Active",
-      className: "bg-green-600 hover:bg-green-700",
-    },
-    PENDING_APPROVAL: {
-      variant: "secondary",
-      label: "Pending Approval",
-      className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-    },
-    DRAFT: { variant: "outline", label: "Draft" },
-    REJECTED: { variant: "destructive", label: "Rejected" },
-    SOLD: {
-      variant: "secondary",
-      label: "Sold",
-      className: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-    },
-    RENTED: {
-      variant: "secondary",
-      label: "Rented",
-      className: "bg-purple-100 text-purple-800 hover:bg-purple-200",
-    },
-    EXPIRED: {
-      variant: "outline",
-      label: "Expired",
-      className: "text-gray-500",
-    },
-    DELISTED: {
-      variant: "destructive",
-      label: "Delisted",
-      className: "bg-red-100 text-red-800 hover:bg-red-200",
-    },
-  };
-
-  const config = variants[status] || { variant: "outline", label: status };
-  return (
-    <Badge
-      variant={config.variant}
-      className={`capitalize ${config.className || ""}`}
-    >
-      {config.label}
-    </Badge>
-  );
-};
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-IN", {

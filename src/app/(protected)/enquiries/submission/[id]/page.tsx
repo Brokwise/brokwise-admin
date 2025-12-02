@@ -372,7 +372,7 @@ const SubmissionPage = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm italic text-muted-foreground bg-muted p-3 rounded-md">
-                "{submission.privateMessage}"
+                &quot;{submission.privateMessage}&quot;
               </p>
             </CardContent>
           </Card>

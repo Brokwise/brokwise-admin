@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Enquiry } from "@/types/enquiry";
 import { formatCurrency } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useResortEnquiry } from "@/hooks/useEnquiry";
 import { useState } from "react";
 import {
@@ -67,7 +66,6 @@ const formatDate = (dateString: string) => {
 };
 
 const DeletedCellAction = ({ enquiry }: { enquiry: Enquiry }) => {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { mutate: restoreEnquiry, isPending } = useResortEnquiry(enquiry._id);
 

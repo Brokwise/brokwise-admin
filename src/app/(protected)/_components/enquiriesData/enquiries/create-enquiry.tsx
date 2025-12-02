@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useCreateEnquiry } from "@/hooks/useEnquiry";
 import { PropertyCategory, PropertyType } from "@/types/properties";
+import { Enquiry } from "@/types/enquiry";
 
 // --- Zod Schema ---
 
@@ -167,7 +168,9 @@ export const CreateEnquiry = () => {
   const [localityInput, setLocalityInput] = useState("");
 
   const form = useForm<CreateEnquiryFormValues>({
-    resolver: zodResolver(createEnquirySchema) as any,
+    resolver: zodResolver(
+      createEnquirySchema
+    ) as Resolver<CreateEnquiryFormValues>,
     defaultValues: {
       city: "",
       localities: [],
@@ -182,26 +185,16 @@ export const CreateEnquiry = () => {
 
   // Reset type when category changes
   useEffect(() => {
-    setValue("enquiryType", "" as any);
+    setValue("enquiryType", "" as PropertyType);
   }, [selectedCategory, setValue]);
 
-  const onSubmit = (data: CreateEnquiryFormValues) => {
-    // Clean up optional fields based on category/type before sending if needed,
-    // but the backend should handle extra fields or we can let them be sent as undefined/null.
-    // The DTO expects specific types, Zod handles the shape.
-
-    createEnquiry(data as any, {
-      // Casting as any to bypass strict DTO match if needed, or matched by shape
+  const onSubmit = (data: Enquiry) => {
+    createEnquiry(data, {
       onSuccess: () => {
         toast.success("Enquiry created successfully!");
         queryClient.invalidateQueries({ queryKey: ["enquiries"] });
         setOpen(false);
         form.reset();
-      },
-      onError: (error: any) => {
-        toast.error(
-          error.response?.data?.message || "Failed to create enquiry"
-        );
       },
     });
   };
@@ -299,7 +292,7 @@ export const CreateEnquiry = () => {
         <ScrollArea className="flex-1 px-6 py-4">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit((data) => onSubmit(data as Enquiry))}
               className="space-y-6 pb-8"
             >
               {/* --- Location --- */}

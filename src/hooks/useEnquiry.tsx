@@ -1,9 +1,4 @@
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxios from "./use-axios";
 import {
   Enquiry,
@@ -28,9 +23,9 @@ export const useGetEnquiries = () => {
 
 export const useCreateEnquiry = () => {
   const api = useAxios();
-  const { mutate, isPending, error } = useMutation<Enquiry>({
+  const { mutate, isPending, error } = useMutation({
     mutationKey: ["createEnquiry"],
-    mutationFn: async (enquiry) => {
+    mutationFn: async (enquiry: Enquiry) => {
       const response = await api.post("/admin/enquiry", enquiry);
       return response.data.data.enquiry;
     },
