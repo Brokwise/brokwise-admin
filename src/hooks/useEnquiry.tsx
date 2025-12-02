@@ -56,7 +56,7 @@ export const useGetSubmission = (id: string) => {
     queryKey: ["submission", id],
     queryFn: async () => {
       const response = await api.get(`/admin/enquiry/submission/${id}`);
-      return response.data.data.submission;
+      return response.data.data;
     },
     enabled: !!id,
   });
@@ -214,7 +214,7 @@ export const useResortEnquiry = (id: string) => {
   const { mutate, isPending, error } = useMutation({
     mutationKey: ["resortEnquiry", id],
     mutationFn: async () => {
-      const response = await api.post(`/admin/enquiry/${id}/restore`);
+      const response = await api.patch(`/admin/enquiry/${id}/restore`);
       return response.data.data;
     },
     onSuccess: () => {

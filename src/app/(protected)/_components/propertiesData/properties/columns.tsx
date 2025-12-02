@@ -93,23 +93,31 @@ export const columns: ColumnDef<Property>[] = [
     header: "Image",
     cell: ({ row }) => {
       const image = row.getValue("featuredMedia") as string;
+      const isHeic = image?.toLowerCase().includes(".heic");
+
       return (
         <div className="relative h-10 w-16 overflow-hidden rounded-md">
           {image ? (
-            <Image
-              src={
-                image.includes("firebasestorage.googleapis.com")
-                  ? image
-                  : "/placeholder.webp"
-              }
-              alt="Property"
-              fill
-              className="object-cover"
-              sizes="64px"
-              onError={(e) => {
-                e.currentTarget.src = "/placeholder.webp";
-              }}
-            />
+            isHeic ? (
+              <div className="flex h-full w-full items-center justify-center bg-muted text-[10px] text-muted-foreground">
+                HEIC
+              </div>
+            ) : (
+              <Image
+                src={
+                  image.includes("firebasestorage.googleapis.com")
+                    ? image
+                    : "/placeholder.webp"
+                }
+                alt="Property"
+                fill
+                className="object-cover"
+                sizes="64px"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.webp";
+                }}
+              />
+            )
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
               No Img

@@ -55,7 +55,9 @@ import {
   ChevronsRight,
   Loader2,
   AlertCircle,
+  Plus,
 } from "lucide-react";
+import { CreateEnquiry } from "./create-enquiry";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -131,8 +133,13 @@ export function DataTable<TData, TValue>({
       <CardHeader>
         <CardTitle>Enquiries</CardTitle>
         <CardDescription>
-          Manage and view all enquiry records with advanced filtering and
-          sorting
+          <div className="flex items-center justify-between">
+            <p>
+              Manage and view all enquiry records with advanced filtering and
+              sorting
+            </p>
+            <CreateEnquiry />
+          </div>
         </CardDescription>
       </CardHeader>
       <CardContent>

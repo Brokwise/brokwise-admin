@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PendingSubmission } from "@/types/enquiry";
 import { formatCurrency } from "@/lib/utils";
-import { useState } from "react";
-import { SubmissionDetailsDialog } from "./submission-details-dialog";
+import { useRouter } from "next/navigation";
 
 const getStatusBadge = (status: string) => {
   const variants: Record<
@@ -48,7 +47,7 @@ const formatDate = (dateString: string) => {
 };
 
 const ActionsCell = ({ submission }: { submission: PendingSubmission }) => {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -70,20 +69,22 @@ const ActionsCell = ({ submission }: { submission: PendingSubmission }) => {
             Copy Submission ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsDetailsOpen(true)}>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/enquiries/submission/${submission._id}`)
+            }
+          >
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsDetailsOpen(true)}>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/enquiries/submission/${submission._id}`)
+            }
+          >
             Review Submission
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <SubmissionDetailsDialog
-        submission={submission}
-        isOpen={isDetailsOpen}
-        onClose={() => setIsDetailsOpen(false)}
-      />
     </>
   );
 };

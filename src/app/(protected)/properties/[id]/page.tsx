@@ -123,19 +123,36 @@ const PropertyDetailsPage = () => {
           <Card className="overflow-hidden">
             <div className="relative aspect-video w-full bg-muted">
               {property.featuredMedia ? (
-                <Image
-                  src={
-                    property.featuredMedia.includes(
-                      "firebasestorage.googleapis.com"
-                    )
-                      ? property.featuredMedia
-                      : "/placeholder.webp"
-                  }
-                  alt="Featured Property Image"
-                  fill
-                  className="object-cover"
-                  priority
-                />
+                property.featuredMedia.toLowerCase().includes(".heic") ? (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-muted p-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Preview not available (HEIC format)
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        window.open(property.featuredMedia, "_blank")
+                      }
+                    >
+                      View Image
+                    </Button>
+                  </div>
+                ) : (
+                  <Image
+                    src={
+                      property.featuredMedia.includes(
+                        "firebasestorage.googleapis.com"
+                      )
+                        ? property.featuredMedia
+                        : "/placeholder.webp"
+                    }
+                    alt="Featured Property Image"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                )
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                   No Image Available

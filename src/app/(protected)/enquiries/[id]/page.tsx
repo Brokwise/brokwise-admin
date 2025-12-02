@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -49,6 +49,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+
+import Image from "next/image";
 
 const ChatSheet = ({
   enquiryId,
@@ -430,11 +432,17 @@ const EnquiryPage = () => {
                       {/* Property Image / Left Side */}
                       <div className="w-full md:w-48 h-32 md:h-auto bg-muted relative shrink-0">
                         {submission.propertyId.featuredMedia ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={submission.propertyId.featuredMedia}
+                          <Image
+                            src={
+                              submission.propertyId.featuredMedia.includes(
+                                "firebasestorage.googleapis.com"
+                              )
+                                ? submission.propertyId.featuredMedia
+                                : "/placeholder.webp"
+                            }
                             alt="Property"
-                            className="w-full h-full object-cover"
+                            className="object-cover"
+                            fill
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -450,7 +458,14 @@ const EnquiryPage = () => {
                                 ? "destructive"
                                 : "secondary"
                             }
-                            className="capitalize shadow-sm"
+                            className={cn(
+                              "capitalize shadow-sm",
+                              submission.status === "approved"
+                                ? "bg-green-500 text-green-50"
+                                : submission.status === "rejected"
+                                ? "bg-red-500 text-red-50"
+                                : "bg-yellow-500 text-yellow-50"
+                            )}
                           >
                             {submission.status}
                           </Badge>
@@ -486,6 +501,11 @@ const EnquiryPage = () => {
                                     variant="outline"
                                     size="icon"
                                     className="h-8 w-8"
+                                    onClick={() =>
+                                      router.push(
+                                        `/enquiries/submission/${submission._id}`
+                                      )
+                                    }
                                   >
                                     <ExternalLink className="h-4 w-4" />
                                   </Button>
