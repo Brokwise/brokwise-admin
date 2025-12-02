@@ -153,7 +153,11 @@ export const useSendMessage = (enquiryId: string, brokerId: string) => {
   const queryClient = useQueryClient();
   const { mutate, isPending, error } = useMutation({
     mutationKey: ["sendMessage", enquiryId, brokerId],
-    mutationFn: async (message: { message: string }) => {
+    mutationFn: async (message: {
+      message: string;
+      threadType?: MessageThreadType;
+      submissionId?: string;
+    }) => {
       const response = await api.post(
         `/admin/enquiry/${enquiryId}/message/${brokerId}`,
         message

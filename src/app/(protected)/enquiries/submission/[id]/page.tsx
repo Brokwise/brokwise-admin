@@ -38,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { SubmissionChat } from "@/app/(protected)/_components/enquiriesData/submission-chat";
 import {
   useGetSubmission,
   useUpdateSubmissionStatus,
@@ -376,6 +377,14 @@ const SubmissionPage = () => {
               </p>
             </CardContent>
           </Card>
+
+          {/* Submission Chat */}
+          <SubmissionChat
+            enquiryId={submission.enquiryId._id}
+            brokerId={submission.brokerId._id}
+            brokerName={`${submission.brokerId.firstName} ${submission.brokerId.lastName}`}
+            submissionId={submission._id}
+          />
         </div>
 
         {/* Right Column: Context & Actions */}

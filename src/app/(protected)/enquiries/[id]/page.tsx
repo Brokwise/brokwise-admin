@@ -74,7 +74,7 @@ const ChatSheet = ({
     isLoading,
     error,
   } = useGetMessageForThread(enquiryId, brokerId, threadType, submissionId);
-  console.log(messages);
+
   const { mutate: sendMessage, isPending: isSending } = useSendMessage(
     enquiryId,
     brokerId
