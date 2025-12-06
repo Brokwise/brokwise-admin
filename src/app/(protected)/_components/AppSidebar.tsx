@@ -17,6 +17,7 @@ import {
   Building2,
   SunMoon,
   MessageCircle,
+  File,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -76,6 +77,14 @@ const AppSidebar = () => {
               <Link href="/enquiries">
                 <MessageCircle />
                 <span>Enquiries</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="JDA Forms">
+              <Link href="/jda-forms">
+                <File />
+                <span>JDA Forms</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
