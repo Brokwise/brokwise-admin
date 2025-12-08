@@ -382,6 +382,7 @@ const SubmissionPage = () => {
           <SubmissionChat
             enquiryId={submission.enquiryId._id}
             brokerId={submission.brokerId._id}
+            brokerName={`${broker.firstName} ${broker.lastName}`}
             submissionId={submission._id}
           />
         </div>

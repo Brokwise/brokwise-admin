@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 interface SubmissionChatProps {
   enquiryId: string;
   brokerId: string;
+  brokerName: string;
   submissionId: string;
   className?: string;
 }
@@ -19,6 +20,7 @@ interface SubmissionChatProps {
 export const SubmissionChat = ({
   enquiryId,
   brokerId,
+  brokerName,
   submissionId,
   className,
 }: SubmissionChatProps) => {
@@ -65,7 +67,7 @@ export const SubmissionChat = ({
       <CardHeader className="pb-3 border-b">
         <CardTitle className="text-base flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
-          Submission Discussion
+          Chat with {brokerName}
         </CardTitle>
       </CardHeader>
 
