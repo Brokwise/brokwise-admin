@@ -49,7 +49,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   status: z.enum(["draft", "published"]),
-  notifyBrokers: z.boolean().default(false),
+  notifyBrokers: z.boolean(),
 });
 
 interface FormDialogProps {
