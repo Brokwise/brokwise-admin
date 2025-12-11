@@ -18,6 +18,7 @@ import {
   SunMoon,
   MessageCircle,
   File,
+  Briefcase,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -61,6 +62,14 @@ const AppSidebar = () => {
               <Link href="/">
                 <Users />
                 <span>Brokers</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Companies">
+              <Link href="/companies">
+                <Briefcase />
+                <span>Companies</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
