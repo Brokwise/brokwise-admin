@@ -122,15 +122,14 @@ export interface MarketplaceEnquiry
   myLastSubmissionStatus?: string | null;
 }
 
-// === ENQUIRY SUBMISSION INTERFACE (Property Proposal) ===
 export interface EnquirySubmission {
   _id: string;
-  submissionId: string; // SUB-000001
+  submissionId: string;
 
   enquiryId: string;
   brokerId: string;
+  companyId?: string;
 
-  // Property Reference
   propertyId: Property;
 
   // Communication
@@ -151,7 +150,6 @@ export interface EnquirySubmission {
   updatedAt: string;
 }
 
-// === SUBMISSION PROPERTY (Matches API response) ===
 export interface SubmissionProperty extends Omit<Property, "address"> {
   address:
     | string
@@ -159,7 +157,6 @@ export interface SubmissionProperty extends Omit<Property, "address"> {
   localities?: string[];
 }
 
-// === PENDING SUBMISSION REVIEW INTERFACE (Populated) ===
 export interface PendingSubmission
   extends Omit<EnquirySubmission, "enquiryId" | "brokerId"> {
   enquiryId: Enquiry;
