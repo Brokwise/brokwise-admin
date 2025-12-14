@@ -74,21 +74,17 @@ export interface Enquiry {
   beds?: number;
   rentalIncome?: RentalIncomeRange;
 
-  // Industrial
   purpose?: string;
   areaType?: AreaType;
 
-  // Status & Lifecycle
   status: EnquiryStatus;
   expiresAt?: Date;
 
-  // Soft Delete
   isDeleted: boolean;
   deletedAt?: Date;
   deletedBy?: string;
   deletionReason?: string;
 
-  // Forwarding Metadata (for priority/recommended marking)
   forwardedTo: string[];
   submissionCount: number;
 
@@ -122,15 +118,14 @@ export interface MarketplaceEnquiry
   myLastSubmissionStatus?: string | null;
 }
 
-// === ENQUIRY SUBMISSION INTERFACE (Property Proposal) ===
 export interface EnquirySubmission {
   _id: string;
-  submissionId: string; // SUB-000001
+  submissionId: string;
 
   enquiryId: string;
   brokerId: string;
+  companyId?: string;
 
-  // Property Reference
   propertyId: Property;
 
   // Communication
@@ -151,7 +146,6 @@ export interface EnquirySubmission {
   updatedAt: string;
 }
 
-// === SUBMISSION PROPERTY (Matches API response) ===
 export interface SubmissionProperty extends Omit<Property, "address"> {
   address:
     | string
@@ -159,7 +153,6 @@ export interface SubmissionProperty extends Omit<Property, "address"> {
   localities?: string[];
 }
 
-// === PENDING SUBMISSION REVIEW INTERFACE (Populated) ===
 export interface PendingSubmission
   extends Omit<EnquirySubmission, "enquiryId" | "brokerId"> {
   enquiryId: Enquiry;
