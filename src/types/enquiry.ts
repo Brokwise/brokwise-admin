@@ -74,21 +74,17 @@ export interface Enquiry {
   beds?: number;
   rentalIncome?: RentalIncomeRange;
 
-  // Industrial
   purpose?: string;
   areaType?: AreaType;
 
-  // Status & Lifecycle
   status: EnquiryStatus;
   expiresAt?: Date;
 
-  // Soft Delete
   isDeleted: boolean;
   deletedAt?: Date;
   deletedBy?: string;
   deletionReason?: string;
 
-  // Forwarding Metadata (for priority/recommended marking)
   forwardedTo: string[];
   submissionCount: number;
 
