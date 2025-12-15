@@ -5,7 +5,7 @@ import { useProperty, useUpdatePropertyStatus } from "@/hooks/useProperty";
 import { ListingStatus } from "@/types/properties";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import {
@@ -98,7 +98,11 @@ const PropertyDetailsPage = () => {
   const property = properties?.find((p) => p._id === id);
 
   if (isLoadingProperties) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   if (!property) {
@@ -306,21 +310,37 @@ const PropertyDetailsPage = () => {
                       Name
                     </span>
                     <span className="font-medium">
-                      {(property.listedBy as unknown as { firstName: string }).firstName}{" "}
-                      {(property.listedBy as unknown as { lastName: string }).lastName}
+                      {
+                        (property.listedBy as unknown as { firstName: string })
+                          .firstName
+                      }{" "}
+                      {
+                        (property.listedBy as unknown as { lastName: string })
+                          .lastName
+                      }
                     </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground block text-xs mb-1">
                       Mobile
                     </span>
-                    <span>{(property.listedBy as unknown as { mobile: string }).mobile}</span>
+                    <span>
+                      {
+                        (property.listedBy as unknown as { mobile: string })
+                          .mobile
+                      }
+                    </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground block text-xs mb-1">
                       Email
                     </span>
-                    <span>{(property.listedBy as unknown as { email: string }).email}</span>
+                    <span>
+                      {
+                        (property.listedBy as unknown as { email: string })
+                          .email
+                      }
+                    </span>
                   </div>
                 </>
               ) : (

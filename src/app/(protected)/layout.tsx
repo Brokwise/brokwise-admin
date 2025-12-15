@@ -21,7 +21,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="font-semibold">Brokwise Admin</span>
             </div>
           </header>
-          {children}
+          <main className="px-10">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </ProtectedPage>

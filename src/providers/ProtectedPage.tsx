@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -24,7 +25,9 @@ const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="h-screen flex justify-center items-center">
+            <Loader2 className="animate-spin" />
+          </div>
         </div>
       </div>
     );

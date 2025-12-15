@@ -8,7 +8,7 @@ import {
 } from "@/hooks/useBroker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -59,7 +59,11 @@ const BrokerDetailsPage = () => {
   const broker = brokers?.find((b) => b._id === id);
 
   if (isLoadingBrokers) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   if (!broker) {

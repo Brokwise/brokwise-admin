@@ -1,7 +1,7 @@
-import { BrokersData } from "./_components/brokersData";
+import { KPI } from "./_components/kpiData";
 
 const page = () => {
-  return <BrokersData />;
+  return <KPI />;
 };
 
 export default page;

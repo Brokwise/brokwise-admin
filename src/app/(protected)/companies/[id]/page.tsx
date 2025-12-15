@@ -1,14 +1,11 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import {
-  useCompanyDetails,
-  useCompanyStatusUpdate,
-} from "@/hooks/useCompany";
+import { useCompanyDetails, useCompanyStatusUpdate } from "@/hooks/useCompany";
 import { CompanyStatus } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -63,7 +60,11 @@ const CompanyDetailsPage = () => {
   const companyBrokers = brokers?.filter((broker) => broker.companyId === id);
 
   if (isLoadingCompany) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
   }
 
   if (!company) {

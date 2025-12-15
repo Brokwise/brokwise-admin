@@ -59,7 +59,7 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Brokers">
-              <Link href="/">
+              <Link href="/brokers">
                 <Users />
                 <span>Brokers</span>
               </Link>
