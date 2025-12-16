@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { PropertyDeleteRequest } from "@/types/properties";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,16 @@ import { ArrowUpDown, Check, X, ExternalLink } from "lucide-react";
 import { useManageDeleteRequest } from "@/hooks/useProperty";
 import { toast } from "sonner";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
@@ -118,6 +129,8 @@ export const deleteRequestsColumns: ColumnDef<PropertyDeleteRequest>[] = [
 
 function ActionCell({ request }: { request: PropertyDeleteRequest }) {
   const { mutate: manageRequest, isPending } = useManageDeleteRequest();
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   if (request.status !== "pending") {
     return (
@@ -131,6 +144,8 @@ function ActionCell({ request }: { request: PropertyDeleteRequest }) {
       {
         onSuccess: () => {
           toast.success(`Request ${status} successfully`);
+          setShowApproveDialog(false);
+          setShowRejectDialog(false);
         },
         onError: (error) => {
           toast.error(`Failed to ${status} request`);
@@ -141,27 +156,89 @@ function ActionCell({ request }: { request: PropertyDeleteRequest }) {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        size="sm"
-        variant="outline"
-        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
-        onClick={() => handleAction("approved")}
-        disabled={isPending}
-        title="Approve"
-      >
-        <Check className="h-4 w-4" />
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-        onClick={() => handleAction("rejected")}
-        disabled={isPending}
-        title="Reject"
-      >
-        <X className="h-4 w-4" />
-      </Button>
-    </div>
+    <>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
+          onClick={() => setShowApproveDialog(true)}
+          disabled={isPending}
+          title="Approve"
+        >
+          <Check className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+          onClick={() => setShowRejectDialog(true)}
+          disabled={isPending}
+          title="Reject"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Approve Confirmation Dialog */}
+      <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-green-600">Approve Deletion Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to approve this property deletion request?
+              <br />
+              <span className="font-medium">Property ID:</span>{" "}
+              <span className="font-mono text-xs">{request.propertyId}</span>
+              <br />
+              <span className="font-medium">Reason:</span> {request.reason}
+              <br /><br />
+              <span className="text-destructive font-medium">
+                This action will permanently delete the property and cannot be undone.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleAction("approved")}
+              disabled={isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isPending ? "Approving..." : "Yes, Approve"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reject Confirmation Dialog */}
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600">Reject Deletion Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reject this property deletion request?
+              <br />
+              <span className="font-medium">Property ID:</span>{" "}
+              <span className="font-mono text-xs">{request.propertyId}</span>
+              <br />
+              <span className="font-medium">Reason given:</span> {request.reason}
+              <br /><br />
+              The broker will be notified that their request has been rejected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleAction("rejected")}
+              disabled={isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isPending ? "Rejecting..." : "Yes, Reject"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
