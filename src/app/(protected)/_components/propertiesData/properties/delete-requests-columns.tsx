@@ -4,9 +4,10 @@ import { PropertyDeleteRequest } from "@/types/properties";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, Check, X } from "lucide-react";
+import { ArrowUpDown, Check, X, ExternalLink } from "lucide-react";
 import { useManageDeleteRequest } from "@/hooks/useProperty";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "N/A";
@@ -57,7 +58,13 @@ export const deleteRequestsColumns: ColumnDef<PropertyDeleteRequest>[] = [
     accessorKey: "propertyId",
     header: "Property ID",
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{row.getValue("propertyId")}</div>
+      <Link
+        href={`/properties/${row.getValue("propertyId")}`}
+        className="font-mono text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer"
+      >
+        {row.getValue("propertyId")}
+        <ExternalLink className="h-3 w-3" />
+      </Link>
     ),
   },
   {
