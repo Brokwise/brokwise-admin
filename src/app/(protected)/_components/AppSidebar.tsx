@@ -97,6 +97,14 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="JDA Forms">
+              <Link href="/messages">
+                <File />
+                <span>Messages</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {/* <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <Link href="/settings">
