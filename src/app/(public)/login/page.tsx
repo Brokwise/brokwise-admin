@@ -242,44 +242,6 @@ const LoginPage = () => {
           </Form>
 
           {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-900"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-black px-2 text-zinc-600 tracking-wider">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          {/* Social Login */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 bg-zinc-950 border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-900 text-white rounded-lg py-2.5 transition-all duration-200 group"
-            >
-              <Github
-                className="text-zinc-400 group-hover:text-white transition-colors"
-                size={18}
-              />
-              <span className="text-xs font-medium text-zinc-400 group-hover:text-white transition-colors">
-                GitHub
-              </span>
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 bg-zinc-950 border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-900 text-white rounded-lg py-2.5 transition-all duration-200 group"
-            >
-              <Chrome
-                className="text-zinc-400 group-hover:text-white transition-colors"
-                size={18}
-              />
-              <span className="text-xs font-medium text-zinc-400 group-hover:text-white transition-colors">
-                Google
-              </span>
-            </button>
-          </div>
 
           {/* Footer Sign Up */}
           <p className="text-center text-xs text-zinc-500 pt-4">

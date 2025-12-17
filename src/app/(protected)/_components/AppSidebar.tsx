@@ -19,6 +19,7 @@ import {
   MessageCircle,
   File,
   Briefcase,
+  MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -100,7 +101,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="JDA Forms">
               <Link href="/messages">
-                <File />
+                <MessageCircleMore />
                 <span>Messages</span>
               </Link>
             </SidebarMenuButton>

@@ -6,6 +6,7 @@ import {
   useGetConversations,
   useGetConversationDetails,
   useSendMessage,
+  useCreateConversation,
 } from "@/hooks/useChat";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,16 +15,33 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Conversation } from "@/types/chat";
-import { Loader2, Send, Search, User, Paperclip } from "lucide-react";
+import {
+  Loader2,
+  Send,
+  Search,
+  User,
+  Paperclip,
+  MessageSquarePlusIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import { generateFilePath, uploadFileToFirebase } from "@/lib/firebase-utils";
 import { toast } from "sonner";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { useBroker } from "@/hooks/useBroker";
 
 export default function MessagesPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
+  const { brokers } = useBroker();
+  console.log(brokers);
   const [messageInput, setMessageInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,7 +51,7 @@ export default function MessagesPage() {
     useGetConversations();
   const { data: conversationDetails, isLoading: isLoadingMessages } =
     useGetConversationDetails(selectedConversationId!, 1, 100);
-
+  const { mutate, isPending } = useCreateConversation();
   const sendMessageMutation = useSendMessage();
 
   const scrollToBottom = () => {
@@ -123,15 +141,45 @@ export default function MessagesPage() {
     const name = getParticipantName(conversation);
     return name.charAt(0).toUpperCase();
   };
+  const handleStartConversation = async (brokerId: string) => {
+    mutate({ participantId: brokerId, participantType: "Broker" });
+  };
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.20))] overflow-hidden rounded-lg border bg-background shadow-sm">
-      {/* Sidebar - Conversation List */}
+    <div className="flex h-[calc(95vh-theme(spacing.20))] overflow-hidden rounded-lg border bg-background shadow-sm">
       <div className="w-80 flex-shrink-0 border-r bg-muted/10 md:w-96 flex flex-col">
         <div className="p-4 border-b flex-shrink-0">
-          <h2 className="text-xl font-semibold tracking-tight mb-4">
-            Messages
-          </h2>
+          <div className="flex justify-between">
+            <h2 className="text-xl font-semibold tracking-tight mb-4">
+              Messages
+            </h2>
+            <Dialog>
+              <DialogTrigger>
+                <Button variant={"outline"}>
+                  <MessageSquarePlusIcon />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <h1>Select broker to continue</h1>
+                </DialogHeader>
+                <DialogDescription>
+                  {brokers?.map((b) => (
+                    <div>
+                      {b.firstName}{" "}
+                      <Button
+                        onClick={() => {
+                          handleStartConversation(b._id);
+                        }}
+                      >
+                        Add
+                      </Button>{" "}
+                    </div>
+                  ))}
+                </DialogDescription>
+              </DialogContent>
+            </Dialog>
+          </div>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search messages..." className="pl-8" />
@@ -226,7 +274,6 @@ export default function MessagesPage() {
                 ))}
             </div>
 
-            {/* Messages List */}
             <ScrollArea className="flex-1 p-6">
               <div className="flex flex-col gap-4 min-h-full justify-end">
                 {isLoadingMessages && !conversationDetails ? (
