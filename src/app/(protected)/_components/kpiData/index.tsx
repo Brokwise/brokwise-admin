@@ -6,7 +6,6 @@ import {
   MessageSquare,
   Users,
   AlertCircle,
-  TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";

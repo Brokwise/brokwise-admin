@@ -8,14 +8,7 @@ import useAxios, { ApiError, ApiResponse } from "@/hooks/use-axios";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import {
-  Quote,
-  Check,
-  Github,
-  Chrome,
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
+import { Quote, Github, Chrome, ArrowRight, ShieldCheck } from "lucide-react";
 import {
   Form,
   FormField,
@@ -24,7 +17,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 const LoginPage = () => {
@@ -116,9 +108,9 @@ const LoginPage = () => {
         <div className="relative z-10 max-w-lg">
           <Quote className="text-zinc-600 mb-6 h-6 w-6" />
           <p className="text-xl font-light leading-relaxed text-zinc-300 tracking-tight">
-            "Empowering brokerages to operate smarter, faster, and more
-            securely. Brokwise gives you the tools and infrastructure to manage
-            trading, compliance, and client relationships with confidence."
+            Empowering brokerages to operate smarter, faster, and more securely.
+            Brokwise gives you the tools and infrastructure to manage trading,
+            compliance, and client relationships with confidence.
           </p>
           <div className="mt-8 flex items-center gap-4"></div>
         </div>
@@ -291,7 +283,7 @@ const LoginPage = () => {
 
           {/* Footer Sign Up */}
           <p className="text-center text-xs text-zinc-500 pt-4">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href="#"
               className="font-medium text-white hover:underline decoration-zinc-500 underline-offset-4 transition-all"

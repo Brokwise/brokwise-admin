@@ -53,7 +53,7 @@ export const useCreateConversation = () => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
       toast.success("Conversation created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       toast.error(
         error.response?.data?.message || "Failed to create conversation"
       );
@@ -79,7 +79,7 @@ export const useSendMessage = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       toast.error(error.response?.data?.message || "Failed to send message");
     },
   });
@@ -94,7 +94,7 @@ export const useDeleteMessage = () => {
       await api.delete(`/admin/deleteMessage/${messageId}`);
       return messageId;
     },
-    onSuccess: (messageId) => {
+    onSuccess: () => {
       // We can't easily invalidate just the message list without the conversation ID,
       // but we might be able to find it in the cache if needed.
       // For now, simpler to just assume the UI will handle optimistic updates or invalidations if the conversation ID is known in context.
@@ -102,7 +102,7 @@ export const useDeleteMessage = () => {
       queryClient.invalidateQueries({ queryKey: ["conversation"] });
       toast.success("Message deleted");
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       toast.error(error.response?.data?.message || "Failed to delete message");
     },
   });
@@ -129,7 +129,7 @@ export const useUpdateMessage = () => {
       queryClient.invalidateQueries({ queryKey: ["conversation"] });
       toast.success("Message updated");
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       toast.error(error.response?.data?.message || "Failed to update message");
     },
   });

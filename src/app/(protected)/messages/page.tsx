@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useAuthStore } from "@/stores/authStore";
+
 import {
   useGetConversations,
   useGetConversationDetails,
@@ -18,9 +18,9 @@ import { Loader2, Send, Search, User, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { generateFilePath, uploadFileToFirebase } from "@/lib/firebase-utils";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function MessagesPage() {
-  const { admin } = useAuthStore();
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
@@ -251,7 +251,9 @@ export default function MessagesPage() {
                           )}
                         >
                           {message.type === "image" && message.mediaUrl ? (
-                            <img
+                            <Image
+                              width={100}
+                              height={100}
                               src={message.mediaUrl}
                               alt="Image"
                               className="rounded-md max-w-full h-auto max-h-[300px] object-cover"
