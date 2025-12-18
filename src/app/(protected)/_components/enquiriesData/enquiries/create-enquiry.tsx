@@ -189,6 +189,7 @@ export const CreateEnquiry = () => {
 
   const onSubmit = (data: CreateEnquiryFormValues) => {
     const { addressPlaceId, ...payload } = data;
+    console.log(addressPlaceId);
     createEnquiry(payload as CreateEnquiryDTO, {
       onSuccess: () => {
         toast.success("Enquiry created successfully!");
