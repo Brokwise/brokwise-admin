@@ -8,7 +8,7 @@ import useAxios, { ApiError, ApiResponse } from "@/hooks/use-axios";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Quote, Github, Chrome, ArrowRight, ShieldCheck } from "lucide-react";
+import { Quote, ArrowRight, ShieldCheck } from "lucide-react";
 import {
   Form,
   FormField,

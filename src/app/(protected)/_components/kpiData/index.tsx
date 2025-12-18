@@ -35,27 +35,58 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useGetAvgPropertyValue,
+  useGetEnquiryTrend,
+  useGetListingTrend,
+  useGetPropertyDistribution,
+  useGetStats,
+} from "@/hooks/useKPI";
+import { useState, useMemo } from "react";
 
-// --- Dummy Data ---
+const processStats = (counts: Array<Record<string, number>> = []) => {
+  let total = 0;
+  const breakdown: Record<string, number> = {};
 
-// Row 1: Stats
-const statsData = {
-  totalListings: 1245,
-  totalEnquiries: 850,
-  totalBrokers: 120,
-  pendingApprovals: 15,
+  if (!counts) return { total, breakdown };
+
+  counts.forEach((item) => {
+    Object.entries(item).forEach(([key, value]) => {
+      if (typeof value === "number") {
+        breakdown[key] = (breakdown[key] || 0) + value;
+        total += value;
+      }
+    });
+  });
+
+  return { total, breakdown };
 };
 
-// Row 2: Charts
-const trendData = [
-  { month: "Jan", listings: 65, enquiries: 40 },
-  { month: "Feb", listings: 59, enquiries: 48 },
-  { month: "Mar", listings: 80, enquiries: 60 },
-  { month: "Apr", listings: 81, enquiries: 75 },
-  { month: "May", listings: 56, enquiries: 50 },
-  { month: "Jun", listings: 95, enquiries: 85 },
-  { month: "Jul", listings: 110, enquiries: 100 },
-];
+const Breakdown = ({ items }: { items: Record<string, number> }) => {
+  if (Object.keys(items).length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+      {Object.entries(items).map(([status, count]) => (
+        <div
+          key={status}
+          className="flex items-center gap-1 bg-background/50 px-1.5 py-0.5 rounded-md border border-border/50"
+        >
+          <span className="capitalize">
+            {status.toLowerCase().replace(/_/g, " ")}:
+          </span>
+          <span className="font-semibold">{count}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const trendChartConfig = {
   listings: {
@@ -67,25 +98,6 @@ const trendChartConfig = {
     color: "hsl(var(--muted-foreground))",
   },
 } satisfies ChartConfig;
-
-// Converted Inventory Data for Progress Bars
-const inventoryData = [
-  {
-    location: "Residentail Flat",
-    value: 400,
-    total: 1245,
-    color: "bg-blue-500",
-  },
-  {
-    location: "Commercial Shops",
-    value: 300,
-    total: 1245,
-    color: "bg-green-500",
-  },
-  { location: "Resort", value: 300, total: 1245, color: "bg-yellow-500" },
-  { location: "Industrial", value: 200, total: 1245, color: "bg-purple-500" },
-  { location: "Other", value: 45, total: 1245, color: "bg-gray-500" },
-];
 
 // Row 3: Tables
 const recentEnquiries = [
@@ -160,34 +172,108 @@ const recentBrokers = [
 ];
 
 export const KPI = () => {
+  const [timeFrame, setTimeFrame] = useState<"YEAR" | "MONTH" | "ALL" | "WEEK">(
+    "MONTH"
+  );
+  const { data } = useGetStats();
+  const { data: listingTrend } = useGetListingTrend(timeFrame);
+  const { data: enquiryTrend } = useGetEnquiryTrend(timeFrame);
+  const { data: distribution } = useGetPropertyDistribution();
+  const { data: avgValue } = useGetAvgPropertyValue();
+
+  const listingStats = processStats(data?.listingCounts);
+  const enquiryStats = processStats(data?.enquiryCounts);
+  const brokerStats = processStats(data?.brokerCounts);
+  const companyStats = processStats(data?.companyCounts);
+
+  const chartData = useMemo(() => {
+    if (!listingTrend || !enquiryTrend) return [];
+
+    // Create a map for enquiries for faster lookup
+    const enquiryMap = new Map(
+      enquiryTrend.map((item) => [item.period, item.count])
+    );
+
+    // Merge listings with enquiries
+    // Assuming both endpoints return the same periods for the same timeFrame
+    return listingTrend.map((item) => ({
+      month: item.period,
+      listings: item.count,
+      enquiries: enquiryMap.get(item.period) ?? 0,
+    }));
+  }, [listingTrend, enquiryTrend]);
+
+  const distributionData = useMemo(() => {
+    if (!distribution) return [];
+
+    // The backend returns an array of objects like [{ "CATEGORY_TYPE": 25.5 }, ...]
+    // We need to transform this into what the UI expects
+    return distribution
+      .map((item, index) => {
+        const key = Object.keys(item)[0];
+        const value = item[key]; // This is percentage
+
+        // Generate a color based on index
+        const colors = [
+          "bg-blue-500",
+          "bg-green-500",
+          "bg-yellow-500",
+          "bg-purple-500",
+          "bg-gray-500",
+          "bg-red-500",
+          "bg-indigo-500",
+          "bg-pink-500",
+        ];
+
+        return {
+          location: key
+            .replace(/_/g, " ")
+            .toLowerCase()
+            .replace(/\b\w/g, (c) => c.toUpperCase()), // Title Case
+          value: value, // This is percentage
+          total: 100, // Since value is percentage
+          color: colors[index % colors.length],
+        };
+      })
+      .sort((a, b) => b.value - a.value); // Sort by highest percentage
+  }, [distribution]);
+
   return (
     <main className="container py-10 space-y-6">
       <h1 className="text-2xl font-semibold">Key performance Indicators</h1>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Listings"
-          value={statsData.totalListings.toLocaleString()}
+          value={listingStats.total.toLocaleString()}
           icon={Building2}
           variant="blue"
-        />
+        >
+          <Breakdown items={listingStats.breakdown} />
+        </StatsCard>
         <StatsCard
           title="Total Enquiries"
-          value={statsData.totalEnquiries.toLocaleString()}
+          value={enquiryStats.total.toLocaleString()}
           icon={MessageSquare}
           variant="green"
-        />
+        >
+          <Breakdown items={enquiryStats.breakdown} />
+        </StatsCard>
         <StatsCard
           title="Total Brokers"
-          value={statsData.totalBrokers.toLocaleString()}
+          value={brokerStats.total.toLocaleString()}
           icon={Users}
           variant="yellow"
-        />
+        >
+          <Breakdown items={brokerStats.breakdown} />
+        </StatsCard>
         <StatsCard
-          title="Pending Approvals"
-          value={statsData.pendingApprovals.toLocaleString()}
+          title="Total Companies"
+          value={companyStats.total.toLocaleString()}
           icon={AlertCircle}
           variant="red"
-        />
+        >
+          <Breakdown items={companyStats.breakdown} />
+        </StatsCard>
       </div>
 
       {/* Row 2: Charts Area */}
@@ -199,9 +285,33 @@ export const KPI = () => {
               <CardTitle className="text-lg font-semibold">
                 Performance
               </CardTitle>
-              <CardDescription>Weekly listings and enquiries</CardDescription>
+              <CardDescription>
+                {timeFrame === "WEEK"
+                  ? "Daily"
+                  : timeFrame === "MONTH"
+                  ? "Daily (Last 30 Days)"
+                  : timeFrame === "YEAR"
+                  ? "Monthly (Last 12 Months)"
+                  : "All Time"}{" "}
+                listings and enquiries
+              </CardDescription>
             </div>
-            {/* Legend simulation or extra controls could go here */}
+            <Select
+              value={timeFrame}
+              onValueChange={(v) =>
+                setTimeFrame(v as "YEAR" | "MONTH" | "ALL" | "WEEK")
+              }
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Select timeframe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="WEEK">Week</SelectItem>
+                <SelectItem value="MONTH">Month</SelectItem>
+                <SelectItem value="YEAR">Year</SelectItem>
+                <SelectItem value="ALL">All Time</SelectItem>
+              </SelectContent>
+            </Select>
           </CardHeader>
           <CardContent className="pl-0">
             <ChartContainer
@@ -210,7 +320,7 @@ export const KPI = () => {
             >
               <LineChart
                 accessibilityLayer
-                data={trendData}
+                data={chartData}
                 margin={{
                   left: 20,
                   right: 20,
@@ -229,7 +339,15 @@ export const KPI = () => {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={12}
-                  tickFormatter={(value) => value}
+                  tickFormatter={(value) => {
+                    if (timeFrame === "YEAR" || timeFrame === "ALL") {
+                      // Format YYYY-MM to Month Name or similar if needed
+                      // For now keeping simpler format
+                      return value;
+                    }
+                    // For daily data, maybe show Day only or MM-DD
+                    return value.slice(5);
+                  }}
                   stroke="hsl(var(--muted-foreground))"
                 />
                 <YAxis
@@ -296,7 +414,16 @@ export const KPI = () => {
                 <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Avg. Listing
                 </div>
-                <div className="mt-2 text-2xl font-bold">$642K</div>
+                <div className="mt-2 text-2xl font-bold">
+                  {avgValue && !isNaN(Number(avgValue))
+                    ? new Intl.NumberFormat("en-AE", {
+                        style: "currency",
+                        currency: "AED",
+                        notation: "compact",
+                        maximumFractionDigits: 1,
+                      }).format(Number(avgValue))
+                    : "AED 0"}
+                </div>
                 <div className="mt-1 text-xs font-medium text-green-500 flex items-center">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   2.1%
@@ -320,20 +447,22 @@ export const KPI = () => {
                 Top Categories
               </h4>
               <div className="space-y-4">
-                {inventoryData.slice(0, 3).map((item) => (
+                {distributionData.slice(0, 5).map((item) => (
                   <div key={item.location} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{item.location}</span>
                       <span className="text-muted-foreground">
-                        {Math.round((item.value / item.total) * 100)}%
+                        {Math.round(item.value)}%
                       </span>
                     </div>
-                    <Progress
-                      value={(item.value / item.total) * 100}
-                      className="h-2"
-                    />
+                    <Progress value={item.value} className="h-2" />
                   </div>
                 ))}
+                {distributionData.length === 0 && (
+                  <div className="text-sm text-muted-foreground text-center py-4">
+                    No distribution data available
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

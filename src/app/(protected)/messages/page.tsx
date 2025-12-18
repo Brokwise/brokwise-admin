@@ -51,7 +51,7 @@ export default function MessagesPage() {
     useGetConversations();
   const { data: conversationDetails, isLoading: isLoadingMessages } =
     useGetConversationDetails(selectedConversationId!, 1, 100);
-  const { mutate, isPending } = useCreateConversation();
+  const { mutate } = useCreateConversation();
   const sendMessageMutation = useSendMessage();
 
   const scrollToBottom = () => {
@@ -164,8 +164,8 @@ export default function MessagesPage() {
                   <h1>Select broker to continue</h1>
                 </DialogHeader>
                 <DialogDescription>
-                  {brokers?.map((b) => (
-                    <div>
+                  {brokers?.map((b, index) => (
+                    <div key={index}>
                       {b.firstName}{" "}
                       <Button
                         onClick={() => {

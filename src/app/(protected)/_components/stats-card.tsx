@@ -7,6 +7,7 @@ interface StatsCardProps {
   value: string | number;
   icon?: LucideIcon;
   variant?: "blue" | "green" | "yellow" | "red" | "gray";
+  children?: React.ReactNode;
 }
 
 const colorMap = {
@@ -22,6 +23,7 @@ export function StatsCard({
   value,
   icon: Icon,
   variant = "blue",
+  children,
 }: StatsCardProps) {
   return (
     <Card className="shadow-none overflow-hidden relative">
@@ -37,6 +39,7 @@ export function StatsCard({
       </CardHeader>
       <CardContent className="relative">
         <div className="text-2xl font-bold">{value}</div>
+        {children && <div className="mt-2">{children}</div>}
       </CardContent>
     </Card>
   );
