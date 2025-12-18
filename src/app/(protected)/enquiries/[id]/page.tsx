@@ -311,10 +311,7 @@ const EnquiryPage = () => {
                 <div className="flex items-start gap-1.5">
                   <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="font-medium capitalize">{enquiry.city}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {enquiry.localities.join(", ")}
-                    </p>
+                    <p className="font-medium">{enquiry.address || "N/A"}</p>
                   </div>
                 </div>
               </div>

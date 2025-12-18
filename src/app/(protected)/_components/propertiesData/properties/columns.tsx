@@ -50,7 +50,8 @@ export const columns: ColumnDef<Property>[] = [
             ) : (
               <Image
                 src={
-                  image.includes("firebasestorage.googleapis.com")
+                  image.includes("firebasestorage.googleapis.com") ||
+                  image.includes("picsum.photos")
                     ? image
                     : "/placeholder.webp"
                 }

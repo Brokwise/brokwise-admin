@@ -96,12 +96,9 @@ export function DataTable<TData, TValue>({
 
       return (
         enquiry.enquiryId?.toLowerCase().includes(search) ||
-        enquiry.city?.toLowerCase().includes(search) ||
+        enquiry.address?.toLowerCase().includes(search) ||
         enquiry.enquiryType?.toLowerCase().includes(search) ||
-        enquiry.enquiryCategory?.toLowerCase().includes(search) ||
-        enquiry.localities?.some((loc: string) =>
-          loc.toLowerCase().includes(search)
-        )
+        enquiry.enquiryCategory?.toLowerCase().includes(search)
       );
     },
     state: {

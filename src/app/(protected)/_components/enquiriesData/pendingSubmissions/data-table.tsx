@@ -95,7 +95,7 @@ export function DataTable<TData, TValue>({
       return (
         submission.submissionId?.toLowerCase().includes(search) ||
         submission.enquiryId?.enquiryId?.toLowerCase().includes(search) ||
-        submission.enquiryId?.city?.toLowerCase().includes(search) ||
+        submission.enquiryId?.address?.toLowerCase().includes(search) ||
         submission.brokerId?.firstName?.toLowerCase().includes(search) ||
         submission.brokerId?.lastName?.toLowerCase().includes(search) ||
         submission.brokerId?.companyName?.toLowerCase().includes(search)

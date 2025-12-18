@@ -108,7 +108,7 @@ export const columns: ColumnDef<PendingSubmission>[] = [
         <div className="flex flex-col">
           <span className="font-medium text-sm">{enquiry.enquiryId}</span>
           <span className="text-xs text-muted-foreground">
-            {enquiry.enquiryType} • {enquiry.city}
+            {enquiry.enquiryType} • {enquiry.address}
           </span>
         </div>
       );

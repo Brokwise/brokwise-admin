@@ -5,11 +5,15 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { DeleteRequestsTable } from "./delete-requests-table";
 import { deleteRequestsColumns } from "./delete-requests-columns";
-import { useProperty, useDeleteRequests } from "@/hooks/useProperty";
+import { useDeleteRequests, usePaginatedProperties } from "@/hooks/useProperty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const PropertiesData = () => {
-  const { properties, isLoadingProperties, errorProperties } = useProperty();
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
+
+  const { propertiesPage, isLoadingProperties, errorProperties } =
+    usePaginatedProperties({ page, limit: pageSize });
   const { deleteRequests, isLoadingDeleteRequests, errorDeleteRequests } =
     useDeleteRequests();
 
@@ -23,9 +27,20 @@ export const PropertiesData = () => {
         <TabsContent value="all-properties" className="mt-6">
           <DataTable
             columns={columns}
-            data={properties || []}
+            data={propertiesPage?.properties || []}
             isLoading={isLoadingProperties}
             error={errorProperties}
+            pagination={{
+              page: propertiesPage?.page ?? page,
+              pageSize,
+              total: propertiesPage?.total,
+              totalPages: propertiesPage?.totalPages,
+              onPageChange: setPage,
+              onPageSizeChange: (nextSize) => {
+                setPage(1);
+                setPageSize(nextSize);
+              },
+            }}
           />
         </TabsContent>
         <TabsContent value="delete-requests" className="mt-6">

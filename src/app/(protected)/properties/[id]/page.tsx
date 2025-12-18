@@ -147,7 +147,7 @@ const PropertyDetailsPage = () => {
                     src={
                       property.featuredMedia.includes(
                         "firebasestorage.googleapis.com"
-                      )
+                      ) || property.featuredMedia.includes("picsum.photos")
                         ? property.featuredMedia
                         : "/placeholder.webp"
                     }

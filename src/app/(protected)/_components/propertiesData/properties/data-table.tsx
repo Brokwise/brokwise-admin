@@ -63,6 +63,14 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   isLoading?: boolean;
   error?: Error | null;
+  pagination?: {
+    page: number; // 1-based
+    pageSize: number;
+    total?: number;
+    totalPages?: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (pageSize: number) => void;
+  };
 }
 
 export function DataTable<TData, TValue>({
@@ -70,6 +78,7 @@ export function DataTable<TData, TValue>({
   data,
   isLoading = false,
   error = null,
+  pagination,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -77,11 +86,20 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const isServerPaginated = Boolean(pagination);
+  const serverPageCount = isServerPaginated
+    ? pagination?.totalPages ??
+      Math.max(
+        1,
+        Math.ceil((pagination?.total ?? data.length) / (pagination?.pageSize ?? 10))
+      )
+    : 0;
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(isServerPaginated ? {} : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -129,12 +147,27 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       globalFilter,
+      ...(isServerPaginated
+        ? {
+            pagination: {
+              pageIndex: Math.max(0, (pagination?.page ?? 1) - 1),
+              pageSize: pagination?.pageSize ?? 10,
+            },
+          }
+        : {}),
     },
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+    ...(isServerPaginated
+      ? {
+          manualPagination: true,
+          pageCount: serverPageCount,
+        }
+      : {
+          initialState: {
+            pagination: {
+              pageSize: 10,
+            },
+          },
+        }),
   });
 
   const handleStatusFilter = (value: string) => {
@@ -228,20 +261,34 @@ export function DataTable<TData, TValue>({
 
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
-              Showing {table.getFilteredRowModel().rows.length} of {data.length}{" "}
+              Showing {table.getFilteredRowModel().rows.length} of{" "}
+              {isServerPaginated ? pagination?.total ?? data.length : data.length}{" "}
               properties
             </div>
             <div className="flex items-center gap-2">
               <span>Rows per page:</span>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${
+                  isServerPaginated
+                    ? pagination?.pageSize ?? 10
+                    : table.getState().pagination.pageSize
+                }`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value));
+                  const nextSize = Number(value);
+                  if (isServerPaginated) {
+                    pagination?.onPageSizeChange(nextSize);
+                  } else {
+                    table.setPageSize(nextSize);
+                  }
                 }}
               >
                 <SelectTrigger className="h-8 w-[70px]">
                   <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
+                    placeholder={
+                      isServerPaginated
+                        ? pagination?.pageSize ?? 10
+                        : table.getState().pagination.pageSize
+                    }
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
@@ -327,39 +374,86 @@ export function DataTable<TData, TValue>({
 
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount()}
+                Page{" "}
+                {isServerPaginated
+                  ? pagination?.page ?? 1
+                  : table.getState().pagination.pageIndex + 1}{" "}
+                of {isServerPaginated ? serverPageCount : table.getPageCount()}
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => table.setPageIndex(0)}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => {
+                    if (isServerPaginated) {
+                      pagination?.onPageChange(1);
+                    } else {
+                      table.setPageIndex(0);
+                    }
+                  }}
+                  disabled={
+                    isServerPaginated
+                      ? (pagination?.page ?? 1) <= 1
+                      : !table.getCanPreviousPage()
+                  }
                 >
                   <ChevronsLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => {
+                    if (isServerPaginated) {
+                      pagination?.onPageChange(
+                        Math.max(1, (pagination?.page ?? 1) - 1)
+                      );
+                    } else {
+                      table.previousPage();
+                    }
+                  }}
+                  disabled={
+                    isServerPaginated
+                      ? (pagination?.page ?? 1) <= 1
+                      : !table.getCanPreviousPage()
+                  }
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() => {
+                    if (isServerPaginated) {
+                      pagination?.onPageChange(
+                        Math.min(serverPageCount, (pagination?.page ?? 1) + 1)
+                      );
+                    } else {
+                      table.nextPage();
+                    }
+                  }}
+                  disabled={
+                    isServerPaginated
+                      ? (pagination?.page ?? 1) >= serverPageCount
+                      : !table.getCanNextPage()
+                  }
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() => {
+                    if (isServerPaginated) {
+                      pagination?.onPageChange(serverPageCount);
+                    } else {
+                      table.setPageIndex(table.getPageCount() - 1);
+                    }
+                  }}
+                  disabled={
+                    isServerPaginated
+                      ? (pagination?.page ?? 1) >= serverPageCount
+                      : !table.getCanNextPage()
+                  }
                 >
                   <ChevronsRight className="h-4 w-4" />
                 </Button>

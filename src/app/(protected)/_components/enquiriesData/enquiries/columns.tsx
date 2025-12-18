@@ -215,22 +215,13 @@ export const columns: ColumnDef<Enquiry>[] = [
     },
   },
   {
-    accessorKey: "city",
-    header: "Location",
+    accessorKey: "address",
+    header: "Address",
     cell: ({ row }) => {
-      const city = row.original.city;
-      const localities = row.original.localities;
+      const address = row.original.address;
       return (
-        <div className="flex flex-col max-w-[150px]">
-          <span className="font-medium capitalize">{city}</span>
-          {localities.length > 0 && (
-            <span
-              className="text-xs text-muted-foreground truncate"
-              title={localities.join(", ")}
-            >
-              {localities.join(", ")}
-            </span>
-          )}
+        <div className="max-w-[220px] truncate" title={address}>
+          {address || <span className="text-muted-foreground">N/A</span>}
         </div>
       );
     },

@@ -182,12 +182,7 @@ const SubmissionPage = () => {
                 </span>
                 <div className="font-medium flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  {enquiry.city}
-                  {enquiry.localities && enquiry.localities.length > 0 && (
-                    <span className="text-muted-foreground text-sm font-normal">
-                      ({enquiry.localities.join(", ")})
-                    </span>
-                  )}
+                  {enquiry.address || "N/A"}
                 </div>
               </div>
 

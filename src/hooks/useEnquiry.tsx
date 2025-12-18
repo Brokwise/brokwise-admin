@@ -7,6 +7,7 @@ import {
   EnquiryMessage,
   MessageThread,
   MessageThreadType,
+  CreateEnquiryDTO,
 } from "@/types/enquiry";
 
 export const useGetEnquiries = () => {
@@ -25,7 +26,7 @@ export const useCreateEnquiry = () => {
   const api = useAxios();
   const { mutate, isPending, error } = useMutation({
     mutationKey: ["createEnquiry"],
-    mutationFn: async (enquiry: Enquiry) => {
+    mutationFn: async (enquiry: CreateEnquiryDTO) => {
       const response = await api.post("/admin/enquiry", enquiry);
       return response.data.data.enquiry;
     },

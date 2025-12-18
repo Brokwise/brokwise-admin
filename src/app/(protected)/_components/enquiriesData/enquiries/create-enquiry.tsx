@@ -5,7 +5,7 @@ import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { X, Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -26,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -35,10 +34,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
 
 import { useCreateEnquiry } from "@/hooks/useEnquiry";
 import { PropertyCategory, PropertyType } from "@/types/properties";
-import { Enquiry } from "@/types/enquiry";
+import { CreateEnquiryDTO } from "@/types/enquiry";
 
 // --- Zod Schema ---
 
@@ -81,11 +81,10 @@ const rentalIncomeRangeSchema = z
   });
 
 const createEnquirySchema = z.object({
-  city: z.string().min(1, "City is required"),
-  localities: z
-    .array(z.string())
-    .min(1, "At least one locality is required")
-    .max(10, "Maximum 10 localities allowed"),
+  address: z.string().min(3, "Address is required"),
+  addressPlaceId: z
+    .string()
+    .min(1, "Please select an address from suggestions"),
   enquiryCategory: z.enum([
     "RESIDENTIAL",
     "COMMERCIAL",
@@ -165,15 +164,14 @@ export const CreateEnquiry = () => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: createEnquiry, isPending } = useCreateEnquiry();
-  const [localityInput, setLocalityInput] = useState("");
 
   const form = useForm<CreateEnquiryFormValues>({
     resolver: zodResolver(
       createEnquirySchema
     ) as Resolver<CreateEnquiryFormValues>,
     defaultValues: {
-      city: "",
-      localities: [],
+      address: "",
+      addressPlaceId: "",
       budget: { min: 0, max: 0 },
       description: "",
     },
@@ -182,14 +180,16 @@ export const CreateEnquiry = () => {
   const { watch, setValue, control } = form;
   const selectedCategory = watch("enquiryCategory");
   const selectedType = watch("enquiryType");
+  const addressLabel = watch("address");
 
   // Reset type when category changes
   useEffect(() => {
     setValue("enquiryType", "" as PropertyType);
   }, [selectedCategory, setValue]);
 
-  const onSubmit = (data: Enquiry) => {
-    createEnquiry(data, {
+  const onSubmit = (data: CreateEnquiryFormValues) => {
+    const { addressPlaceId, ...payload } = data;
+    createEnquiry(payload as CreateEnquiryDTO, {
       onSuccess: () => {
         toast.success("Enquiry created successfully!");
         queryClient.invalidateQueries({ queryKey: ["enquiries"] });
@@ -292,106 +292,39 @@ export const CreateEnquiry = () => {
         <ScrollArea className="flex-1 px-6 py-4">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit((data) => onSubmit(data as Enquiry))}
+              onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 pb-8"
             >
               {/* --- Location --- */}
               <div className="space-y-4">
                 <FormField
                   control={control}
-                  name="city"
+                  name="addressPlaceId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        City <span className="text-red-500">*</span>
+                        Address <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Pune" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name="localities"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Localities <span className="text-red-500">*</span> (Max
-                        10)
-                      </FormLabel>
-                      <FormControl>
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <Input
-                              value={localityInput}
-                              onChange={(e) => setLocalityInput(e.target.value)}
-                              placeholder="Add a locality and press Enter or Add"
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  const val = localityInput.trim();
-                                  if (val && !field.value?.includes(val)) {
-                                    if ((field.value?.length || 0) >= 10) {
-                                      toast.error(
-                                        "Maximum 10 localities allowed"
-                                      );
-                                      return;
-                                    }
-                                    field.onChange([
-                                      ...(field.value || []),
-                                      val,
-                                    ]);
-                                    setLocalityInput("");
-                                  }
-                                }
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                const val = localityInput.trim();
-                                if (val && !field.value?.includes(val)) {
-                                  if ((field.value?.length || 0) >= 10) {
-                                    toast.error(
-                                      "Maximum 10 localities allowed"
-                                    );
-                                    return;
-                                  }
-                                  field.onChange([...(field.value || []), val]);
-                                  setLocalityInput("");
-                                }
-                              }}
-                              variant="secondary"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {(field.value || []).map((loc) => (
-                              <Badge
-                                key={loc}
-                                variant="secondary"
-                                className="pl-2 pr-1 py-1"
-                              >
-                                {loc}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    field.onChange(
-                                      field.value.filter((l) => l !== loc)
-                                    );
-                                  }}
-                                  className="ml-2 hover:text-destructive"
-                                >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
+                        <AddressAutocomplete
+                          valueLabel={addressLabel}
+                          valueId={field.value}
+                          disabled={isPending}
+                          onSelect={(item) => {
+                            setValue("address", item.place_name, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                            field.onChange(item.id);
+                          }}
+                          onClear={() => {
+                            setValue("address", "", {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                            field.onChange("");
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
