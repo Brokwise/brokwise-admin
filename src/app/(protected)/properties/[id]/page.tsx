@@ -108,6 +108,7 @@ const PropertyDetailsPage = () => {
   if (!property) {
     return <div className="p-8">Property not found</div>;
   }
+  console.log(property);
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
@@ -340,6 +341,18 @@ const PropertyDetailsPage = () => {
                         (property.listedBy as unknown as { email: string })
                           .email
                       }
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs mb-1">
+                      Company Name
+                    </span>
+                    <span>
+                      {(
+                        property.listedBy as unknown as {
+                          companyName: string;
+                        }
+                      ).companyName || "No Company"}
                     </span>
                   </div>
                 </>
