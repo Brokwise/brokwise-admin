@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import useAxios from "./use-axios";
-import { Property, PropertyDeleteRequest } from "@/types/properties";
+import { Property, PropertyDeleteRequest, PropertyOffer } from "@/types/properties";
 
 export const useProperty = () => {
   const api = useAxios();
@@ -123,6 +123,63 @@ export const useManageDeleteRequest = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deleteRequests"] });
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+  });
+  return { mutate, isPending, error };
+};
+
+export const usePropertyOffers = (propertyId: string) => {
+  const api = useAxios();
+  const {
+    data: offers,
+    isLoading: isLoadingOffers,
+    error: errorOffers,
+  } = useQuery<PropertyOffer[]>({
+    queryKey: ["propertyOffers", propertyId],
+    queryFn: async () => {
+      const response = await api.get(`/admin/properties/${propertyId}/offers`);
+      return response.data?.data;
+    },
+    enabled: !!propertyId,
+  });
+  return { offers, isLoadingOffers, errorOffers };
+};
+
+export const useAcceptOffer = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+  const { mutate, isPending, error } = useMutation({
+    mutationKey: ["acceptOffer"],
+    mutationFn: async (data: { propertyId: string; offerId: string }) => {
+      const response = await api.put("/admin/offers/accept", data);
+      return response.data?.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["propertyOffers", variables.propertyId],
+      });
+    },
+  });
+  return { mutate, isPending, error };
+};
+
+export const useRejectOffer = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+  const { mutate, isPending, error } = useMutation({
+    mutationKey: ["rejectOffer"],
+    mutationFn: async (data: {
+      propertyId: string;
+      offerId: string;
+      rejectionReason: string;
+    }) => {
+      const response = await api.put("/admin/offers/reject", data);
+      return response.data?.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["propertyOffers", variables.propertyId],
+      });
     },
   });
   return { mutate, isPending, error };

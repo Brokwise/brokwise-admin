@@ -174,6 +174,7 @@ export interface Property {
   createdAt: string;
   updatedAt: string;
   deletingStatus?: "pending" | "approved" | "rejected" | null;
+  offers?: PropertyOffer[];
 }
 
 export interface PropertyDeleteRequest {
@@ -183,6 +184,33 @@ export interface PropertyDeleteRequest {
   status: "pending" | "approved" | "rejected";
   brokerName: string;
   brokerId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type OfferStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "final_pending"
+  | "final_accepted"
+  | "final_rejected";
+
+export interface PropertyOffer {
+  _id: string;
+  offerBy: string | {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    brokerId: string;
+    mobile: string;
+    companyName?: string;
+  };
+  rate: number;
+  status: OfferStatus;
+  rejectionReason?: string;
+  isFinalOffer: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

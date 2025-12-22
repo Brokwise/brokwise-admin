@@ -87,6 +87,8 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
+import { PropertyOffersList } from "./property-offers-list";
+
 const PropertyDetailsPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -367,6 +369,10 @@ const PropertyDetailsPage = () => {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <PropertyOffersList propertyId={property._id} />
       </div>
     </div>
   );
