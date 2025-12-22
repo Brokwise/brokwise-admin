@@ -11,9 +11,12 @@ import {
 } from "@/components/ui/select";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return "--";
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "--";
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
@@ -37,9 +40,20 @@ export const columns: ColumnDef<Broker>[] = [
     },
     cell: ({ row }) => {
       const broker = row.original;
+      const fullName = `${broker.firstName || ""} ${
+        broker.lastName || ""
+      }`.trim();
       return (
-        <div className="font-medium">
-          {broker.firstName} {broker.lastName}
+        <div className="font-medium flex items-center gap-3">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={broker.profilePhoto} alt={fullName || "Broker"} />
+            <AvatarFallback>
+              {broker?.firstName?.charAt(0) ||
+                broker?.lastName?.charAt(0) ||
+                "?"}
+            </AvatarFallback>
+          </Avatar>
+          {fullName || "--"}
         </div>
       );
     },
@@ -59,14 +73,14 @@ export const columns: ColumnDef<Broker>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-sm">{row.getValue("email")}</div>;
+      return <div className="text-sm">{row.getValue("email") || "--"}</div>;
     },
   },
   {
     accessorKey: "mobile",
     header: "Mobile",
     cell: ({ row }) => {
-      return <div className="text-sm">{row.getValue("mobile")}</div>;
+      return <div className="text-sm">{row.getValue("mobile") || "--"}</div>;
     },
   },
   {
@@ -83,7 +97,9 @@ export const columns: ColumnDef<Broker>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-sm">{row.getValue("companyName")}</div>;
+      return (
+        <div className="text-sm">{row.getValue("companyName") || "--"}</div>
+      );
     },
   },
   {
@@ -100,7 +116,7 @@ export const columns: ColumnDef<Broker>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-sm">{row.getValue("city")}</div>;
+      return <div className="text-sm">{row.getValue("city") || "--"}</div>;
     },
   },
   {
@@ -117,8 +133,11 @@ export const columns: ColumnDef<Broker>[] = [
       );
     },
     cell: ({ row }) => {
+      const value = row.getValue("yearsOfExperience");
       return (
-        <div className="text-sm">{row.getValue("yearsOfExperience")} years</div>
+        <div className="text-sm">
+          {value !== undefined && value !== null ? `${value} years` : "--"}
+        </div>
       );
     },
   },
@@ -127,7 +146,9 @@ export const columns: ColumnDef<Broker>[] = [
     header: "RERA No.",
     cell: ({ row }) => {
       return (
-        <div className="font-mono text-xs">{row.getValue("reraNumber")}</div>
+        <div className="font-mono text-xs">
+          {row.getValue("reraNumber") || "--"}
+        </div>
       );
     },
   },
@@ -166,7 +187,9 @@ export const columns: ColumnDef<Broker>[] = [
     header: "Broker ID",
     cell: ({ row }) => {
       return (
-        <div className="font-mono text-xs">{row.getValue("brokerId")}</div>
+        <div className="font-mono text-xs">
+          {row.getValue("brokerId") || "--"}
+        </div>
       );
     },
   },

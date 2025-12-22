@@ -128,7 +128,8 @@ export function DataTable<TData, TValue>({
       <CardHeader>
         <CardTitle>Companies</CardTitle>
         <CardDescription>
-          Manage and view all company records with advanced filtering and sorting
+          Manage and view all company records with advanced filtering and
+          sorting
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -344,12 +345,3 @@ export function DataTable<TData, TValue>({
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-

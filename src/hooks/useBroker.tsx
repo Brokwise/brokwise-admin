@@ -24,6 +24,7 @@ export interface Broker {
   companyId?: string;
   createdAt: string;
   brokerId: string;
+  profilePhoto?: string;
 }
 export const useBroker = () => {
   const api = useAxios();

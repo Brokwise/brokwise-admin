@@ -91,7 +91,9 @@ export function DataTable<TData, TValue>({
     ? pagination?.totalPages ??
       Math.max(
         1,
-        Math.ceil((pagination?.total ?? data.length) / (pagination?.pageSize ?? 10))
+        Math.ceil(
+          (pagination?.total ?? data.length) / (pagination?.pageSize ?? 10)
+        )
       )
     : 0;
 
@@ -99,7 +101,9 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    ...(isServerPaginated ? {} : { getPaginationRowModel: getPaginationRowModel() }),
+    ...(isServerPaginated
+      ? {}
+      : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -262,7 +266,9 @@ export function DataTable<TData, TValue>({
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
               Showing {table.getFilteredRowModel().rows.length} of{" "}
-              {isServerPaginated ? pagination?.total ?? data.length : data.length}{" "}
+              {isServerPaginated
+                ? pagination?.total ?? data.length
+                : data.length}{" "}
               properties
             </div>
             <div className="flex items-center gap-2">
