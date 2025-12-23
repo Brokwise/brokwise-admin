@@ -5,7 +5,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import useAxios from "./use-axios";
-import { Property, PropertyDeleteRequest, PropertyOffer } from "@/types/properties";
+import {
+  Property,
+  PropertyDeleteRequest,
+  PropertyOffer,
+} from "@/types/properties";
 
 export const useProperty = () => {
   const api = useAxios();

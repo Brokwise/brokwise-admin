@@ -198,15 +198,17 @@ export type OfferStatus =
 
 export interface PropertyOffer {
   _id: string;
-  offerBy: string | {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    brokerId: string;
-    mobile: string;
-    companyName?: string;
-  };
+  offerBy:
+    | string
+    | {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        brokerId: string;
+        mobile: string;
+        companyName?: string;
+      };
   rate: number;
   status: OfferStatus;
   rejectionReason?: string;

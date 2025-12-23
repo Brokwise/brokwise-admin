@@ -51,6 +51,8 @@ import {
 } from "@/hooks/useKPI";
 import { useState, useMemo } from "react";
 
+import { CalendarNotes } from "./calendar-notes";
+
 const processStats = (counts: Array<Record<string, number>> = []) => {
   let total = 0;
   const breakdown: Record<string, number> = {};
@@ -241,39 +243,44 @@ export const KPI = () => {
   return (
     <main className="container py-10 space-y-6">
       <h1 className="text-2xl font-semibold">Key performance Indicators</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Listings"
-          value={listingStats.total.toLocaleString()}
-          icon={Building2}
-          variant="blue"
-        >
-          <Breakdown items={listingStats.breakdown} />
-        </StatsCard>
-        <StatsCard
-          title="Total Enquiries"
-          value={enquiryStats.total.toLocaleString()}
-          icon={MessageSquare}
-          variant="green"
-        >
-          <Breakdown items={enquiryStats.breakdown} />
-        </StatsCard>
-        <StatsCard
-          title="Total Brokers"
-          value={brokerStats.total.toLocaleString()}
-          icon={Users}
-          variant="yellow"
-        >
-          <Breakdown items={brokerStats.breakdown} />
-        </StatsCard>
-        <StatsCard
-          title="Total Companies"
-          value={companyStats.total.toLocaleString()}
-          icon={AlertCircle}
-          variant="red"
-        >
-          <Breakdown items={companyStats.breakdown} />
-        </StatsCard>
+      <div className="flex gap-4 ">
+        <div className="w-1/2 grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+          <StatsCard
+            title="Total Listings"
+            value={listingStats.total.toLocaleString()}
+            icon={Building2}
+            variant="blue"
+          >
+            <Breakdown items={listingStats.breakdown} />
+          </StatsCard>
+          <StatsCard
+            title="Total Enquiries"
+            value={enquiryStats.total.toLocaleString()}
+            icon={MessageSquare}
+            variant="green"
+          >
+            <Breakdown items={enquiryStats.breakdown} />
+          </StatsCard>
+          <StatsCard
+            title="Total Brokers"
+            value={brokerStats.total.toLocaleString()}
+            icon={Users}
+            variant="yellow"
+          >
+            <Breakdown items={brokerStats.breakdown} />
+          </StatsCard>
+          <StatsCard
+            title="Total Companies"
+            value={companyStats.total.toLocaleString()}
+            icon={AlertCircle}
+            variant="red"
+          >
+            <Breakdown items={companyStats.breakdown} />
+          </StatsCard>
+        </div>
+        <div className="w-1/2">
+          <CalendarNotes />
+        </div>
       </div>
 
       {/* Row 2: Charts Area */}
@@ -465,71 +472,6 @@ export const KPI = () => {
                 )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Row 3: Tables */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Left Table: Top 5 Recent Enquiries */}
-        <Card className="shadow-none">
-          <CardHeader>
-            <CardTitle>Recent Enquiries</CardTitle>
-            <CardDescription>Latest incoming enquiries.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">ID</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Property</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentEnquiries.map((enquiry) => (
-                  <TableRow key={enquiry.id}>
-                    <TableCell className="font-medium">{enquiry.id}</TableCell>
-                    <TableCell>{enquiry.client}</TableCell>
-                    <TableCell>{enquiry.property}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {enquiry.date}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        {/* Right Table: Recent Broker Registrations */}
-        <Card className="shadow-none">
-          <CardHeader>
-            <CardTitle>Recent Broker Registrations</CardTitle>
-            <CardDescription>New brokers joining the platform.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Agency</TableHead>
-                  <TableHead className="text-right">Joined</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentBrokers.map((broker) => (
-                  <TableRow key={broker.id}>
-                    <TableCell className="font-medium">{broker.name}</TableCell>
-                    <TableCell>{broker.agency}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {broker.joined}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
           </CardContent>
         </Card>
       </div>
