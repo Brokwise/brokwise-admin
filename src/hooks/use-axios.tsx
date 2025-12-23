@@ -13,16 +13,17 @@ const useAxios = () => {
 
   axiosInstance.interceptors.response.use(
     (response) => {
-      console.log(response);
-      if (response.status === 401 || response.status === 403) {
-        console.log("401");
+      return response;
+    },
+    (error) => {
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
         useAuthStore.getState().logout();
         toast.error("Session expired, please login again");
         router.push("/login");
       }
-      return response;
-    },
-    (error) => {
       return Promise.reject(error);
     }
   );
