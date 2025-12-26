@@ -20,6 +20,8 @@ import {
   File,
   Briefcase,
   MessageCircleMore,
+  UserStarIcon,
+  LandPlotIcon,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -103,6 +105,22 @@ const AppSidebar = () => {
               <Link href="/messages">
                 <MessageCircleMore />
                 <span>Messages</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="JDA Forms">
+              <Link href="/developers">
+                <UserStarIcon />
+                <span>Developers</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="JDA Forms">
+              <Link href="/projects">
+                <LandPlotIcon />
+                <span>Projects</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
