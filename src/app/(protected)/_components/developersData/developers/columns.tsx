@@ -2,7 +2,6 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Developer, DeveloperStatus } from "@/types/developer";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -12,15 +11,8 @@ import {
 } from "@/components/ui/select";
 import { useUpdateDeveloperStatus } from "@/hooks/useDeveloper";
 import { format } from "date-fns";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const StatusCell = ({ row }: { row: Row<Developer> }) => {
   const developer = row.original;

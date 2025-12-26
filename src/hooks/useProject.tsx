@@ -37,7 +37,7 @@ export const useUpdateProjectStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success("Project status updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast.error(
         error.response?.data?.message || "Failed to update project status"
       );

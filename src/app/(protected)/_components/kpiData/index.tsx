@@ -16,14 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -102,76 +94,76 @@ const trendChartConfig = {
 } satisfies ChartConfig;
 
 // Row 3: Tables
-const recentEnquiries = [
-  {
-    id: "ENQ-101",
-    client: "Alice Johnson",
-    property: "Sunset Villa",
-    date: "2 mins ago",
-    status: "New",
-  },
-  {
-    id: "ENQ-102",
-    client: "Bob Smith",
-    property: "Downtown Loft",
-    date: "15 mins ago",
-    status: "Pending",
-  },
-  {
-    id: "ENQ-103",
-    client: "Charlie Davis",
-    property: "Office Space 4B",
-    date: "1 hour ago",
-    status: "Reviewed",
-  },
-  {
-    id: "ENQ-104",
-    client: "Dana Lee",
-    property: "Warehouse 12",
-    date: "3 hours ago",
-    status: "New",
-  },
-  {
-    id: "ENQ-105",
-    client: "Evan Wright",
-    property: "Seaside Condo",
-    date: "5 hours ago",
-    status: "Closed",
-  },
-];
+// const recentEnquiries = [
+//   {
+//     id: "ENQ-101",
+//     client: "Alice Johnson",
+//     property: "Sunset Villa",
+//     date: "2 mins ago",
+//     status: "New",
+//   },
+//   {
+//     id: "ENQ-102",
+//     client: "Bob Smith",
+//     property: "Downtown Loft",
+//     date: "15 mins ago",
+//     status: "Pending",
+//   },
+//   {
+//     id: "ENQ-103",
+//     client: "Charlie Davis",
+//     property: "Office Space 4B",
+//     date: "1 hour ago",
+//     status: "Reviewed",
+//   },
+//   {
+//     id: "ENQ-104",
+//     client: "Dana Lee",
+//     property: "Warehouse 12",
+//     date: "3 hours ago",
+//     status: "New",
+//   },
+//   {
+//     id: "ENQ-105",
+//     client: "Evan Wright",
+//     property: "Seaside Condo",
+//     date: "5 hours ago",
+//     status: "Closed",
+//   },
+// ];
 
-const recentBrokers = [
-  {
-    id: "BRK-201",
-    name: "Sarah Conner",
-    agency: "Sky High Realty",
-    joined: "Today",
-  },
-  {
-    id: "BRK-202",
-    name: "John Doe",
-    agency: "Urban Living",
-    joined: "Yesterday",
-  },
-  {
-    id: "BRK-203",
-    name: "Jane Smith",
-    agency: "Prime Estates",
-    joined: "2 days ago",
-  },
-  {
-    id: "BRK-204",
-    name: "Mike Ross",
-    agency: "Legal Homes",
-    joined: "3 days ago",
-  },
-  {
-    id: "BRK-205",
-    name: "Rachel Zane",
-    agency: "Pearson Specter",
-    joined: "4 days ago",
-  },
-];
+// const recentBrokers = [
+//   {
+//     id: "BRK-201",
+//     name: "Sarah Conner",
+//     agency: "Sky High Realty",
+//     joined: "Today",
+//   },
+//   {
+//     id: "BRK-202",
+//     name: "John Doe",
+//     agency: "Urban Living",
+//     joined: "Yesterday",
+//   },
+//   {
+//     id: "BRK-203",
+//     name: "Jane Smith",
+//     agency: "Prime Estates",
+//     joined: "2 days ago",
+//   },
+//   {
+//     id: "BRK-204",
+//     name: "Mike Ross",
+//     agency: "Legal Homes",
+//     joined: "3 days ago",
+//   },
+//   {
+//     id: "BRK-205",
+//     name: "Rachel Zane",
+//     agency: "Pearson Specter",
+//     joined: "4 days ago",
+//   },
+// ];
 
 export const KPI = () => {
   const [timeFrame, setTimeFrame] = useState<"YEAR" | "MONTH" | "ALL" | "WEEK">(

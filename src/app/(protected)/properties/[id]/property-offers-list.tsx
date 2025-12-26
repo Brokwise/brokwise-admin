@@ -28,7 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Check, X, Clock, AlertCircle } from "lucide-react";
+import { Loader2, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -49,7 +49,7 @@ interface PropertyOffersListProps {
 
 export function PropertyOffersList({ propertyId }: PropertyOffersListProps) {
   const { offers, isLoadingOffers } = usePropertyOffers(propertyId);
-  const { mutate: acceptOffer, isPending: isAccepting } = useAcceptOffer();
+  const { mutate: acceptOffer } = useAcceptOffer();
   const { mutate: rejectOffer, isPending: isRejecting } = useRejectOffer();
 
   const [rejectReason, setRejectReason] = useState("");
@@ -73,7 +73,7 @@ export function PropertyOffersList({ propertyId }: PropertyOffersListProps) {
         onSuccess: () => {
           toast.success("Offer accepted successfully");
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           toast.error(
             error?.response?.data?.message || "Failed to accept offer"
           );
@@ -98,7 +98,7 @@ export function PropertyOffersList({ propertyId }: PropertyOffersListProps) {
           setRejectReason("");
           setSelectedOffer(null);
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
           toast.error(
             error?.response?.data?.message || "Failed to reject offer"
           );

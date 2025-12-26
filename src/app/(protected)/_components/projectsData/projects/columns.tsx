@@ -2,7 +2,6 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Project, ProjectStatus } from "@/types/project";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,

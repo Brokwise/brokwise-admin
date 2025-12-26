@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, SlotInfo } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, SlotInfo, ToolbarProps } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 
 const locales = {
@@ -31,7 +31,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const CustomToolbar = (toolbar: any) => {
+const CustomToolbar = (toolbar: ToolbarProps) => {
   const goToBack = () => {
     toolbar.onNavigate("PREV");
   };
@@ -90,7 +90,7 @@ export function CalendarNotes() {
       const savedEvents = localStorage.getItem("calendar-notes");
       if (savedEvents) {
         try {
-          const parsed = JSON.parse(savedEvents).map((e: any) => ({
+          const parsed = JSON.parse(savedEvents).map((e: NoteEvent & { start: string; end: string }) => ({
             ...e,
             start: new Date(e.start),
             end: new Date(e.end),
