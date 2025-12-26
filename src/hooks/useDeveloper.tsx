@@ -36,7 +36,9 @@ export const useUpdateDeveloperStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["developers"] });
       toast.success("Developer status updated successfully");
     },
-    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } }
+    ) => {
       toast.error(
         error.response?.data?.message || "Failed to update developer status"
       );

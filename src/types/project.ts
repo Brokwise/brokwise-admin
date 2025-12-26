@@ -1,8 +1,16 @@
 export type ProjectStatus = "draft" | "pending" | "approved" | "rejected";
-export type ProjectType = "land" | "apartment" | "villa" | "commercial" | "other";
+export type ProjectType =
+  | "land"
+  | "apartment"
+  | "villa"
+  | "commercial"
+  | "other";
 export type ProjectUse = "residential" | "commercial" | "industrial" | "mixed";
 export type LegalStatus = "clear_title" | "pending" | "disputed";
-export type DevelopmentStatus = "ready-to-develop" | "under-development" | "completed";
+export type DevelopmentStatus =
+  | "ready-to-develop"
+  | "under-development"
+  | "completed";
 
 export interface GeoLocation {
   type: "Point";

@@ -73,7 +73,9 @@ export function PropertyOffersList({ propertyId }: PropertyOffersListProps) {
         onSuccess: () => {
           toast.success("Offer accepted successfully");
         },
-        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+        onError: (
+          error: Error & { response?: { data?: { message?: string } } }
+        ) => {
           toast.error(
             error?.response?.data?.message || "Failed to accept offer"
           );
@@ -98,7 +100,9 @@ export function PropertyOffersList({ propertyId }: PropertyOffersListProps) {
           setRejectReason("");
           setSelectedOffer(null);
         },
-        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+        onError: (
+          error: Error & { response?: { data?: { message?: string } } }
+        ) => {
           toast.error(
             error?.response?.data?.message || "Failed to reject offer"
           );
