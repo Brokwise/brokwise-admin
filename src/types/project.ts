@@ -47,9 +47,22 @@ export interface Project {
   description?: string;
   approvalDocuments?: string[];
   images?: string[];
+  sitePlan?: string;
   amenities?: string[];
   developmentStatus?: DevelopmentStatus;
   projectStatus: ProjectStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PlotStats {
+  available: number;
+  booked: number;
+  reserved: number;
+  sold: number;
+}
+
+export interface ProjectDetails {
+  project: Project;
+  plotStats: PlotStats;
 }

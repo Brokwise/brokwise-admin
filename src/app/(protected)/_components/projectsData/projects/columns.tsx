@@ -127,6 +127,14 @@ export const columns: ColumnDef<Project>[] = [
     cell: ({ row }) => {
       const address = row.original.address;
 
+      if (!address) {
+        return (
+          <div className="flex items-start gap-1 max-w-[200px] text-muted-foreground text-xs">
+            No location info
+          </div>
+        );
+      }
+
       return (
         <div className="flex items-start gap-1 max-w-[200px]">
           <MapPin className="h-3 w-3 mt-0.5 text-muted-foreground flex-shrink-0" />

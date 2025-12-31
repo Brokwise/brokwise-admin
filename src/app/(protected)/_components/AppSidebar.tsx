@@ -5,6 +5,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
@@ -22,15 +23,18 @@ import {
   MessageCircleMore,
   UserStarIcon,
   LandPlotIcon,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useTheme } from "next-themes";
+import { usePendingItems } from "@/hooks/usePendingItems";
 
 const AppSidebar = () => {
   const logout = useAuthStore((state) => state.logout);
   const { theme, setTheme } = useTheme();
+  const { pendingItems } = usePendingItems();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -67,6 +71,11 @@ const AppSidebar = () => {
                 <span>Brokers</span>
               </Link>
             </SidebarMenuButton>
+            {pendingItems?.brokers ? (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {pendingItems.brokers}
+              </SidebarMenuBadge>
+            ) : null}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Companies">
@@ -75,6 +84,11 @@ const AppSidebar = () => {
                 <span>Companies</span>
               </Link>
             </SidebarMenuButton>
+            {pendingItems?.companies ? (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {pendingItems.companies}
+              </SidebarMenuBadge>
+            ) : null}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Properties">
@@ -83,6 +97,11 @@ const AppSidebar = () => {
                 <span>Properties</span>
               </Link>
             </SidebarMenuButton>
+            {pendingItems?.properties ? (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {pendingItems.properties}
+              </SidebarMenuBadge>
+            ) : null}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Enquiries">
@@ -91,6 +110,11 @@ const AppSidebar = () => {
                 <span>Enquiries</span>
               </Link>
             </SidebarMenuButton>
+            {pendingItems?.enquiries ? (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {pendingItems.enquiries}
+              </SidebarMenuBadge>
+            ) : null}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="JDA Forms">
@@ -109,18 +133,31 @@ const AppSidebar = () => {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="JDA Forms">
+            <SidebarMenuButton asChild tooltip="Developers">
               <Link href="/developers">
                 <UserStarIcon />
                 <span>Developers</span>
               </Link>
             </SidebarMenuButton>
+            {pendingItems?.developers ? (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {pendingItems.developers}
+              </SidebarMenuBadge>
+            ) : null}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="JDA Forms">
               <Link href="/projects">
                 <LandPlotIcon />
                 <span>Projects</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Calendar">
+              <Link href="/calendar">
+                <Calendar />
+                <span>Calendar</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

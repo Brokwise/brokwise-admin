@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import {
-//   // Calendar,
-//   dateFnsLocalizer,
-//   SlotInfo,
-//   ToolbarProps,
-// } from "react-big-calendar";
-import { format } from "date-fns";
-// import { enUS } from "date-fns/locale";
+import {
+  Calendar,
+  dateFnsLocalizer,
+  SlotInfo,
+  ToolbarProps,
+} from "react-big-calendar";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import {
   Dialog,
@@ -24,56 +24,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 
-// const locales = {
-//   "en-US": enUS,
-// };
+const locales = {
+  "en-US": enUS,
+};
 
-// const localizer = dateFnsLocalizer({
-//   format,
-//   parse,
-//   startOfWeek,
-//   getDay,
-//   locales,
-// });
-
-// const CustomToolbar = (toolbar: ToolbarProps) => {
-//   const goToBack = () => {
-//     toolbar.onNavigate("PREV");
-//   };
-
-//   const goToNext = () => {
-//     toolbar.onNavigate("NEXT");
-//   };
-
-//   const goToCurrent = () => {
-//     toolbar.onNavigate("TODAY");
-//   };
-
-//   const label = () => {
-//     const date = format(toolbar.date, "MMMM yyyy");
-//     return <span className="text-lg font-semibold">{date}</span>;
-//   };
-
-//   return (
-//     <div className="flex items-center justify-between mb-4">
-//       <div className="flex gap-2">
-//         <Button variant="outline" size="sm" onClick={goToBack}>
-//           Back
-//         </Button>
-//         <Button variant="outline" size="sm" onClick={goToCurrent}>
-//           Today
-//         </Button>
-//         <Button variant="outline" size="sm" onClick={goToNext}>
-//           Next
-//         </Button>
-//       </div>
-//       <div className="text-center">{label()}</div>
-//       <div className="flex gap-2">
-//         {/* View buttons can go here if needed */}
-//       </div>
-//     </div>
-//   );
-// };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
 interface NoteEvent {
   id: string;
@@ -83,6 +44,43 @@ interface NoteEvent {
   desc?: string;
   allDay?: boolean;
 }
+
+const CustomToolbar = (toolbar: ToolbarProps<NoteEvent>) => {
+  const goToBack = () => {
+    toolbar.onNavigate("PREV");
+  };
+
+  const goToNext = () => {
+    toolbar.onNavigate("NEXT");
+  };
+
+  const goToCurrent = () => {
+    toolbar.onNavigate("TODAY");
+  };
+
+  const label = () => {
+    const date = format(toolbar.date, "MMMM yyyy");
+    return <span className="text-lg font-semibold">{date}</span>;
+  };
+
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={goToBack}>
+          Back
+        </Button>
+        <Button variant="outline" size="sm" onClick={goToCurrent}>
+          Today
+        </Button>
+        <Button variant="outline" size="sm" onClick={goToNext}>
+          Next
+        </Button>
+      </div>
+      <div className="text-center">{label()}</div>
+      <div className="flex gap-2"></div>
+    </div>
+  );
+};
 
 export function CalendarNotes() {
   const [events, setEvents] = useState<NoteEvent[]>([]);
@@ -117,19 +115,19 @@ export function CalendarNotes() {
     }
   }, [events]);
 
-  // const handleSelectSlot = (slotInfo: SlotInfo) => {
-  //   setCurrentEvent({
-  //     start: slotInfo.start,
-  //     end: slotInfo.end,
-  //     allDay: slotInfo.slots.length === 1,
-  //   });
-  //   setIsDialogOpen(true);
-  // };
+  const handleSelectSlot = (slotInfo: SlotInfo) => {
+    setCurrentEvent({
+      start: slotInfo.start,
+      end: slotInfo.end,
+      allDay: slotInfo.slots.length === 1,
+    });
+    setIsDialogOpen(true);
+  };
 
-  // const handleSelectEvent = (event: NoteEvent) => {
-  //   setCurrentEvent(event);
-  //   setIsDialogOpen(true);
-  // };
+  const handleSelectEvent = (event: NoteEvent) => {
+    setCurrentEvent(event);
+    setIsDialogOpen(true);
+  };
 
   const handleSave = () => {
     if (!currentEvent.title) return;
@@ -217,7 +215,7 @@ export function CalendarNotes() {
             background-color: transparent !important;
           }
         `}</style>
-        {/* <Calendar
+        <Calendar
           localizer={localizer}
           events={events}
           startAccessor="start"
@@ -232,7 +230,7 @@ export function CalendarNotes() {
           views={["month", "week", "day", "agenda"]}
           defaultView="month"
           className="rounded-md"
-        /> */}
+        />
       </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

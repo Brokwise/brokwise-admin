@@ -52,8 +52,10 @@ import {
 } from "lucide-react";
 import { useDevelopers } from "@/hooks/useDeveloper";
 import { columns } from "./columns";
+import { useRouter } from "next/navigation";
 
 export function DataTable() {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -200,6 +202,10 @@ export function DataTable() {
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
+                        onClick={() =>
+                          router.push(`/developers/${row.original._id}`)
+                        }
+                        className="cursor-pointer hover:bg-muted/50"
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>

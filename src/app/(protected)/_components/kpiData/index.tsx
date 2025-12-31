@@ -43,8 +43,6 @@ import {
 } from "@/hooks/useKPI";
 import { useState, useMemo } from "react";
 
-import { CalendarNotes } from "./calendar-notes";
-
 const processStats = (counts: Array<Record<string, number>> = []) => {
   let total = 0;
   const breakdown: Record<string, number> = {};
@@ -236,7 +234,7 @@ export const KPI = () => {
     <main className="container py-10 space-y-6">
       <h1 className="text-2xl font-semibold">Key performance Indicators</h1>
       <div className="flex gap-4 ">
-        <div className="w-1/2 grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+        <div className="w-full grid gap-4 md:grid-cols-4 lg:grid-cols-4">
           <StatsCard
             title="Total Listings"
             value={listingStats.total.toLocaleString()}
@@ -270,9 +268,9 @@ export const KPI = () => {
             <Breakdown items={companyStats.breakdown} />
           </StatsCard>
         </div>
-        <div className="w-1/2">
+        {/* <div className="w-1/2">
           <CalendarNotes />
-        </div>
+        </div> */}
       </div>
 
       {/* Row 2: Charts Area */}

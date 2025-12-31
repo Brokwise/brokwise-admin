@@ -52,14 +52,29 @@ import {
 } from "lucide-react";
 import { useProjects } from "@/hooks/useProject";
 import { columns } from "./columns";
+import { Project } from "@/types/project";
+import { useRouter } from "next/navigation";
 
-export function DataTable() {
+interface DataTableProps {
+  data?: Project[];
+  isLoading?: boolean;
+}
+
+export function DataTable({
+  data: initialData,
+  isLoading: initialLoading,
+}: DataTableProps = {}) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const { data: projects = [], isLoading } = useProjects();
+  const { data: fetchedData = [], isLoading: isFetching } = useProjects();
+
+  const projects = initialData || fetchedData;
+  const isLoading = initialLoading !== undefined ? initialLoading : isFetching;
+
   const table = useReactTable({
     data: projects,
     columns,
@@ -75,7 +90,7 @@ export function DataTable() {
       const search = filterValue.toLowerCase();
       const project = row.original;
       return (
-        project.name.toLowerCase().includes(search) ||
+        project.name?.toLowerCase().includes(search) ||
         project.address?.address?.toLowerCase().includes(search) ||
         project.address?.city?.toLowerCase().includes(search) ||
         project.address?.state?.toLowerCase().includes(search) ||
@@ -207,6 +222,10 @@ export function DataTable() {
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
+                        onClick={() =>
+                          router.push(`/projects/${row.original._id}`)
+                        }
+                        className="cursor-pointer hover:bg-muted/50"
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
