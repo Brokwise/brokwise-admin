@@ -64,6 +64,23 @@ export interface PlotStats {
   sold: number;
 }
 
+export interface Plot {
+  _id: string;
+  projectId: string;
+  blockId: string | { _id: string; name: string };
+  plotNumber: string;
+  area: number;
+  areaUnit: string;
+  price: number;
+  facing: string;
+  status: "available" | "booked" | "sold" | "on_hold";
+  bookedBy?: string;
+  bookingDate?: string;
+  holdExpiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProjectDetails {
   project: Project;
   plotStats: PlotStats;

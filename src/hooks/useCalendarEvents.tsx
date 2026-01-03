@@ -24,7 +24,12 @@ export const useCalendarEvents = (
       if (savedEvents) {
         try {
           const parsed = JSON.parse(savedEvents).map(
-            (e: Omit<NoteEvent, "start" | "end"> & { start: string; end: string }) => ({
+            (
+              e: Omit<NoteEvent, "start" | "end"> & {
+                start: string;
+                end: string;
+              }
+            ) => ({
               ...e,
               start: new Date(e.start),
               end: new Date(e.end),

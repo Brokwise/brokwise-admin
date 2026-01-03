@@ -3,12 +3,24 @@
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   useProjectById,
   useProjectBookings,
+  useProjectPlots,
   useReleaseHold,
+  useUpdateProjectStatus,
 } from "@/hooks/useProject";
 import { BookingDetailsDialog } from "./booking-details-dialog";
 import { ProjectEditDialog } from "./project-edit-dialog";
+import { BookingDialog } from "./booking-dialog";
+import { Plot, ProjectStatus } from "@/types/project";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,7 +73,49 @@ const ProjectPage = () => {
     useProjectById(projectId);
   const { data: bookings = [], isLoading: isLoadingBookings } =
     useProjectBookings(projectId);
+  const { data: plots = [], isLoading: isLoadingPlots } =
+    useProjectPlots(projectId);
   const { mutate: releaseHold, isPending: isReleasing } = useReleaseHold();
+  const updateStatus = useUpdateProjectStatus();
+
+  const [selectedPlots, setSelectedPlots] = React.useState<Plot[]>([]);
+  const [isBookingOpen, setIsBookingOpen] = React.useState(false);
+
+  // Filter available plots for bulk selection logic
+  const availablePlots = React.useMemo(() => {
+    return plots.filter(
+      (p) =>
+        p.status === "available" ||
+        (p.status === "on_hold" &&
+          p.holdExpiresAt &&
+          new Date(p.holdExpiresAt) < new Date())
+    );
+  }, [plots]);
+
+  const handleBookSelected = () => {
+    setIsBookingOpen(true);
+  };
+
+  const handleBookSingle = (plot: Plot) => {
+    setSelectedPlots([plot]);
+    setIsBookingOpen(true);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPlots(availablePlots);
+    } else {
+      setSelectedPlots([]);
+    }
+  };
+
+  const handleSelectOne = (checked: boolean, plot: Plot) => {
+    if (checked) {
+      setSelectedPlots((prev) => [...prev, plot]);
+    } else {
+      setSelectedPlots((prev) => prev.filter((p) => p._id !== plot._id));
+    }
+  };
 
   const project = projectDetails?.project;
   const plotStats = projectDetails?.plotStats;
@@ -95,17 +149,27 @@ const ProjectPage = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
-        return "default";
+      case "active":
+        return "bg-green-500 hover:bg-green-600";
       case "pending":
-        return "secondary";
+        return "bg-yellow-500 hover:bg-yellow-600";
       case "draft":
-        return "outline";
+        return "bg-gray-500 hover:bg-gray-600";
       case "rejected":
-        return "destructive";
+        return "bg-red-500 hover:bg-red-600";
+      case "approved":
+        return "bg-green-500 hover:bg-green-600";
       default:
-        return "secondary";
+        return "bg-gray-500 hover:bg-gray-600";
     }
+  };
+
+  const handleStatusChange = (value: string) => {
+    if (!project) return;
+    updateStatus.mutate({
+      projectId: project._id,
+      status: value as ProjectStatus,
+    });
   };
 
   const getDevelopmentStatusColor = (status: string) => {
@@ -153,12 +217,25 @@ const ProjectPage = () => {
           <Button variant="outline" onClick={() => setIsEditOpen(true)}>
             Edit Project
           </Button>
-          <Badge
-            variant={getStatusColor(project.projectStatus)}
-            className="capitalize text-sm px-3 py-1"
+          <Select
+            defaultValue={project.projectStatus}
+            onValueChange={handleStatusChange}
+            disabled={updateStatus.isPending}
           >
-            {project.projectStatus}
-          </Badge>
+            <SelectTrigger
+              className={`w-[130px] text-white ${getStatusColor(
+                project.projectStatus
+              )} border-none capitalize`}
+            >
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -547,6 +624,127 @@ const ProjectPage = () => {
       </div>
 
       <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Plots</h3>
+          {selectedPlots.length > 0 && (
+            <Button onClick={handleBookSelected}>
+              Book Selected ({selectedPlots.length})
+            </Button>
+          )}
+        </div>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={
+                        availablePlots.length > 0 &&
+                        selectedPlots.length === availablePlots.length
+                      }
+                      onCheckedChange={handleSelectAll}
+                      disabled={availablePlots.length === 0}
+                    />
+                  </TableHead>
+                  <TableHead>Plot No</TableHead>
+                  <TableHead>Area</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Facing</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingPlots ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      Loading plots...
+                    </TableCell>
+                  </TableRow>
+                ) : plots.length > 0 ? (
+                  plots.map((plot) => {
+                    const isAvailable =
+                      plot.status === "available" ||
+                      (plot.status === "on_hold" &&
+                        plot.holdExpiresAt &&
+                        new Date(plot.holdExpiresAt) < new Date());
+                    const isSelected = selectedPlots.some(
+                      (p) => p._id === plot._id
+                    );
+
+                    return (
+                      <TableRow key={plot._id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) =>
+                              handleSelectOne(checked as boolean, plot)
+                            }
+                            disabled={!isAvailable}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {plot.plotNumber}
+                        </TableCell>
+                        <TableCell>
+                          {plot.area} {plot.areaUnit}
+                        </TableCell>
+                        <TableCell>
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                            maximumFractionDigits: 0,
+                          }).format(plot.price)}
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          {plot.facing || "-"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              plot.status === "available"
+                                ? "default"
+                                : plot.status === "booked"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className="capitalize"
+                          >
+                            {plot.status.replace("_", " ")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {isAvailable && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleBookSingle(plot)}
+                            >
+                              Book
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No plots found for this project.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
         <h3 className="text-xl font-semibold">Bookings</h3>
         <Card>
           <CardContent className="p-0">
@@ -682,6 +880,12 @@ const ProjectPage = () => {
         project={project}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
+      />
+      <BookingDialog
+        plots={selectedPlots}
+        open={isBookingOpen}
+        onOpenChange={setIsBookingOpen}
+        onSuccess={() => setSelectedPlots([])}
       />
     </div>
   );

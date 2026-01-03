@@ -28,7 +28,7 @@ const StatusCell = ({ row }: { row: Row<Project> }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
+      case "active":
         return "bg-green-500 hover:bg-green-600";
       case "pending":
         return "bg-yellow-500 hover:bg-yellow-600";
@@ -57,7 +57,7 @@ const StatusCell = ({ row }: { row: Row<Project> }) => {
       <SelectContent>
         <SelectItem value="draft">Draft</SelectItem>
         <SelectItem value="pending">Pending</SelectItem>
-        <SelectItem value="approved">Approved</SelectItem>
+        <SelectItem value="active">Active</SelectItem>
         <SelectItem value="rejected">Rejected</SelectItem>
       </SelectContent>
     </Select>

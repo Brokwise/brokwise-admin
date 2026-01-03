@@ -86,6 +86,15 @@ export interface Enquiry {
   forwardedTo: string[];
   submissionCount: number;
 
+  interestedBrokersAndCompanies?: {
+    _id: string;
+    email: string;
+    companyName: string;
+    firstName: string;
+    lastName: string;
+    mobile: string;
+  }[];
+
   creatorInfo?: {
     _id: string;
     email: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -51,7 +51,7 @@ export const ProjectEditDialog = ({
   const { mutate: updateProject, isPending } = useUpdateProject();
 
   const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
+    resolver: zodResolver(projectFormSchema) as Resolver<ProjectFormValues>,
     defaultValues: {
       name: project.name || "",
       holdTime: project.holdTime || 4,
@@ -179,4 +179,3 @@ export const ProjectEditDialog = ({
     </Dialog>
   );
 };
-

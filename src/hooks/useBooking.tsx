@@ -26,6 +26,36 @@ export interface UpdateBookingStatusPayload {
   cancelledReason?: string;
 }
 
+export interface CreateBookingPayload {
+  projectId: string;
+  plotId: string;
+  blockId: string;
+  customerDetails: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  notes?: string;
+}
+
+export const useCreateBooking = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateBookingPayload) => {
+      const response = await api.post("/admin/bookings/create", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["project-plots"] });
+      queryClient.invalidateQueries({ queryKey: ["project"] });
+    },
+  });
+};
+
 export const useUpdateBooking = () => {
   const api = useAxios();
   const queryClient = useQueryClient();

@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxios from "./use-axios";
-import { Project, ProjectStatus, ProjectDetails } from "@/types/project";
+import { Project, ProjectStatus, ProjectDetails, Plot } from "@/types/project";
 import { Booking } from "@/types/booking";
 import { toast } from "sonner";
 
@@ -41,6 +41,23 @@ export const useProjectBookings = (projectId: string) => {
   });
 };
 
+export const useProjectPlots = (projectId: string) => {
+  const api = useAxios();
+  return useQuery<Plot[]>({
+    queryKey: ["project-plots", projectId],
+    queryFn: async () => {
+      const response = await api.get(`/admin/projects/${projectId}/plots`);
+      const data = response.data.data;
+      return Array.isArray(data.plots)
+        ? data.plots
+        : Array.isArray(data)
+        ? data
+        : [];
+    },
+    enabled: !!projectId,
+  });
+};
+
 export const useUpdateProjectStatus = () => {
   const api = useAxios();
   const queryClient = useQueryClient();
@@ -53,9 +70,8 @@ export const useUpdateProjectStatus = () => {
       projectId: string;
       status: ProjectStatus;
     }) => {
-      const response = await api.put("/admin/projects/updateStatus", {
-        projectId,
-        status,
+      const response = await api.put(`/admin/projects/${projectId}/status`, {
+        projectStatus: status,
       });
       return response.data;
     },
