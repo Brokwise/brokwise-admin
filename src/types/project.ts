@@ -50,6 +50,8 @@ export interface Project {
   sitePlan?: string;
   amenities?: string[];
   developmentStatus?: DevelopmentStatus;
+  bookingTokenAmount?: number;
+  holdTime?: number;
   projectStatus: ProjectStatus;
   createdAt: string;
   updatedAt: string;
@@ -58,7 +60,7 @@ export interface Project {
 export interface PlotStats {
   available: number;
   booked: number;
-  reserved: number;
+  on_hold: number;
   sold: number;
 }
 

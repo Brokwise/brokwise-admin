@@ -76,6 +76,7 @@ export const usePaginatedProperties = (params?: {
 
 export const useUpdatePropertyStatus = () => {
   const api = useAxios();
+  const queryClient = useQueryClient();
   const { mutate, isPending, error } = useMutation({
     mutationKey: ["updatePropertyStatus"],
     mutationFn: async (data: {
@@ -89,6 +90,9 @@ export const useUpdatePropertyStatus = () => {
         reason: data.reason,
       });
       return response.data?.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
     },
   });
   return { mutate, isPending, error };

@@ -22,7 +22,6 @@ export const useProjectById = (projectId: string) => {
     queryKey: ["project", projectId],
     queryFn: async () => {
       const response = await api.get(`/admin/projects/${projectId}`);
-      // The sample response is: { success: true, status: 200, data: { project: {...}, plotStats: {...} } }
       return response.data.data || response.data;
     },
     enabled: !!projectId,
@@ -35,11 +34,6 @@ export const useProjectBookings = (projectId: string) => {
     queryKey: ["project-bookings", projectId],
     queryFn: async () => {
       const response = await api.get(`/admin/bookings/project/${projectId}`);
-      // Based on the sample response, the data is in data.bookings or data.data.bookings
-      // The sample is: { success: true, status: 200, data: { bookings: [...], pagination: {...} } }
-      // Our generic response handling might wrap this differently, but let's assume standard axios structure:
-      // response.data is { success, status, data: { bookings, pagination } }
-      // So we want response.data.data.bookings
       const data = response.data.data;
       return Array.isArray(data.bookings) ? data.bookings : [];
     },
@@ -79,5 +73,58 @@ export const useUpdateProjectStatus = () => {
   });
 };
 
-// Keep the old hook for backward compatibility
+export const useUpdateProject = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      data,
+    }: {
+      projectId: string;
+      data: Partial<Project>;
+    }) => {
+      const response = await api.put(`/admin/projects/${projectId}`, data);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({
+        queryKey: ["project", variables.projectId],
+      });
+      toast.success("Project updated successfully");
+    },
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } }
+    ) => {
+      toast.error(error.response?.data?.message || "Failed to update project");
+    },
+  });
+};
+
+export const useReleaseHold = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ plotId }: { plotId: string }) => {
+      const response = await api.put("/admin/bookings/releaseHold", {
+        plotId,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["project"] });
+      toast.success("Hold released successfully");
+    },
+    onError: (
+      error: Error & { response?: { data?: { message?: string } } }
+    ) => {
+      toast.error(error.response?.data?.message || "Failed to release hold");
+    },
+  });
+};
+
 export const useProject = useProjects;

@@ -1,14 +1,7 @@
 "use client";
 
 import { StatsCard } from "../stats-card";
-import {
-  Building2,
-  MessageSquare,
-  Users,
-  AlertCircle,
-  ArrowUpRight,
-  ArrowDownRight,
-} from "lucide-react";
+import { Building2, MessageSquare, Users, AlertCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   ChartConfig,
@@ -254,7 +246,7 @@ export const KPI = () => {
           <Card className="flex flex-col">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-semibold flex items-center justify-between">
-                <span>Today's Tasks</span>
+                <span>Today&apos;s Tasks</span>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="icon" className="h-8 w-8">

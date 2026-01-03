@@ -56,6 +56,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -75,7 +76,7 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-
+  const router = useRouter();
   const table = useReactTable({
     data,
     columns,
@@ -274,7 +275,12 @@ export function DataTable<TData, TValue>({
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
-                        className="hover:bg-muted/50"
+                        className="hover:bg-muted/50 cursor-pointer"
+                        onClick={() => {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          const broker = row.original as any;
+                          router.push(`/brokers/${broker._id}`);
+                        }}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>

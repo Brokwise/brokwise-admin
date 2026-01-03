@@ -2,9 +2,26 @@
 
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
-import { useProjectById, useProjectBookings } from "@/hooks/useProject";
+import {
+  useProjectById,
+  useProjectBookings,
+  useReleaseHold,
+} from "@/hooks/useProject";
+import { BookingDetailsDialog } from "./booking-details-dialog";
+import { ProjectEditDialog } from "./project-edit-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   ChevronLeft,
   MapPin,
@@ -38,11 +55,13 @@ const ProjectPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const projectId = id as string;
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
 
   const { data: projectDetails, isLoading: isLoadingProject } =
     useProjectById(projectId);
   const { data: bookings = [], isLoading: isLoadingBookings } =
     useProjectBookings(projectId);
+  const { mutate: releaseHold, isPending: isReleasing } = useReleaseHold();
 
   const project = projectDetails?.project;
   const plotStats = projectDetails?.plotStats;
@@ -130,7 +149,10 @@ const ProjectPage = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <Button variant="outline" onClick={() => setIsEditOpen(true)}>
+            Edit Project
+          </Button>
           <Badge
             variant={getStatusColor(project.projectStatus)}
             className="capitalize text-sm px-3 py-1"
@@ -177,7 +199,7 @@ const ProjectPage = () => {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{plotStats.reserved}</div>
+              <div className="text-2xl font-bold">{plotStats.on_hold}</div>
               <p className="text-xs text-muted-foreground">Temporarily held</p>
             </CardContent>
           </Card>
@@ -247,6 +269,20 @@ const ProjectPage = () => {
                   <p className="text-sm text-muted-foreground">Total Plots</p>
                   <div className="font-medium">
                     {project.numberOfPlots || 0}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">
+                    Booking Token Amount
+                  </p>
+                  <div className="font-medium">
+                    {project.bookingTokenAmount
+                      ? new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                          maximumFractionDigits: 0,
+                        }).format(project.bookingTokenAmount)
+                      : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -522,12 +558,13 @@ const ProjectPage = () => {
                   <TableHead>Broker</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoadingBookings ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       Loading bookings...
                     </TableCell>
                   </TableRow>
@@ -561,18 +598,75 @@ const ProjectPage = () => {
                         <Badge variant="outline" className="capitalize">
                           {booking.bookingStatus || "pending"}
                         </Badge>
+                        {booking.bookingStatus === "on_hold" &&
+                          booking.holdExpiresAt && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Expires:{" "}
+                              {format(new Date(booking.holdExpiresAt), "PP p")}
+                            </div>
+                          )}
                       </TableCell>
                       <TableCell>
                         {booking.createdAt
                           ? format(new Date(booking.createdAt), "PP")
                           : "-"}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <BookingDetailsDialog
+                            booking={booking}
+                            trigger={
+                              <Button variant="outline" size="sm">
+                                View Details
+                              </Button>
+                            }
+                          />
+                          {booking.bookingStatus === "on_hold" && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isReleasing}
+                                >
+                                  Release Hold
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Release Hold?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to release the hold on
+                                    Plot {booking.plotId?.plotNumber}? It will
+                                    become available for other brokers
+                                    immediately.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      releaseHold({
+                                        plotId: booking.plotId._id,
+                                      })
+                                    }
+                                  >
+                                    Release
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="h-24 text-center text-muted-foreground"
                     >
                       No bookings found for this project.
@@ -584,6 +678,11 @@ const ProjectPage = () => {
           </CardContent>
         </Card>
       </div>
+      <ProjectEditDialog
+        project={project}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
     </div>
   );
 };

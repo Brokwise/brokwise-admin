@@ -4,12 +4,12 @@ export interface BookingBroker {
 }
 
 export interface BookingCustomer {
-  _id: string;
+  _id?: string; // Schema says subdoc but usually frontend sees it as object
   name: string;
   email: string;
   phone: string;
   alternatePhone?: string;
-  address: string;
+  address?: string;
 }
 
 export interface BookingPlot {
@@ -22,6 +22,16 @@ export interface BookingPlot {
   status: string;
 }
 
+export type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "completed"
+  | "on_hold"
+  | "reserved";
+
+export type PaymentStatus = "pending" | "paid" | "failed";
+
 export interface Booking {
   _id: string;
   plotId: BookingPlot;
@@ -30,9 +40,18 @@ export interface Booking {
   brokerId: BookingBroker;
   developerId: string;
   customerDetails: BookingCustomer;
-  bookingStatus: string;
+  bookingStatus: BookingStatus;
+  paymentId?: string;
+  orderId?: string;
+  amount?: number;
+  paymentStatus?: PaymentStatus;
+  receiptUrl?: string;
   bookingDate: string;
-  notes: string;
+  notes?: string;
+  cancelledReason?: string;
+  cancelledAt?: string;
+  completedAt?: string;
+  holdExpiresAt?: string;
   createdAt: string;
   updatedAt: string;
   __v: number;

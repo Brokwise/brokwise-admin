@@ -33,7 +33,9 @@ export function StatsCard({
     <Card
       className="cursor-pointer shadow-none overflow-hidden relative"
       onClick={() => {
-        link && router.push(link);
+        if (link) {
+          router.push(link);
+        }
       }}
     >
       <div

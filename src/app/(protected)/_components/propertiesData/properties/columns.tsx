@@ -77,7 +77,9 @@ export const columns: ColumnDef<Property>[] = [
     accessorKey: "propertyId",
     header: "ID",
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{row.getValue("propertyId")}</div>
+      <div className="font-mono text-xs">
+        {row.getValue("propertyId") || "-"}
+      </div>
     ),
   },
   {
@@ -181,7 +183,11 @@ export const columns: ColumnDef<Property>[] = [
     header: "Status",
     cell: ({ row }) => {
       const property = row.original;
-      return <StatusCell property={property} />;
+      return property.listingStatus === "ENQUIRY_ONLY" ? (
+        <h1>Enquiry only</h1>
+      ) : (
+        <StatusCell property={property} />
+      );
     },
     filterFn: (row, id, value) => {
       return value === "all" || row.getValue(id) === value;

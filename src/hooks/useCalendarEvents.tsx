@@ -23,11 +23,13 @@ export const useCalendarEvents = (
       const savedEvents = localStorage.getItem("calendar-notes");
       if (savedEvents) {
         try {
-          const parsed = JSON.parse(savedEvents).map((e: any) => ({
-            ...e,
-            start: new Date(e.start),
-            end: new Date(e.end),
-          }));
+          const parsed = JSON.parse(savedEvents).map(
+            (e: Omit<NoteEvent, "start" | "end"> & { start: string; end: string }) => ({
+              ...e,
+              start: new Date(e.start),
+              end: new Date(e.end),
+            })
+          );
           setEvents(parsed);
         } catch (e) {
           console.error("Failed to parse calendar notes", e);
@@ -35,7 +37,7 @@ export const useCalendarEvents = (
       }
       setIsLoaded(true);
     }
-  }, []);
+  }, [options.persist]);
 
   // Save to local storage
   useEffect(() => {

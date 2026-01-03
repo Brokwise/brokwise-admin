@@ -58,7 +58,8 @@ export type ListingStatus =
   | "SOLD"
   | "RENTED"
   | "EXPIRED"
-  | "DELISTED";
+  | "DELISTED"
+  | "ENQUIRY_ONLY";
 
 export type PossessionStatus = "READY_TO_MOVE" | "UNDER_CONSTRUCTION";
 
@@ -88,13 +89,12 @@ export interface Broker {
   firstName: string;
   lastName: string;
   mobile: string;
+  companyName?: string;
 }
-
-//  Main Property Interface
 
 export interface Property {
   _id: string;
-  propertyId?: string; // Human-readable ID (PROP-000001)
+  propertyId?: string;
 
   // Core & Common
   propertyCategory: PropertyCategory;
@@ -114,7 +114,7 @@ export interface Property {
   floorPlans?: string[]; // Site Plan (PDF Doc or JPEG image)
 
   // Relational IDs
-  listedBy: string; // Ref: 'Broker'
+  listedBy: string | Broker; // Ref: 'Broker'
   companyId: string; // Ref: 'Company'
   verifiedBy?: string; // Ref: 'Admin' | 'Manager'
   adminId?: string; // Ref: 'Admin'

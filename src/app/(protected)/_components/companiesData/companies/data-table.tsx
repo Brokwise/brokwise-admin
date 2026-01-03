@@ -56,6 +56,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Company } from "@/types/company";
 
 interface DataTableProps<TData, TValue> {
@@ -71,6 +72,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   error = null,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -272,7 +274,12 @@ export function DataTable<TData, TValue>({
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
-                        className="hover:bg-muted/50"
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => {
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          const company = row.original as any;
+                          router.push(`/companies/${company._id}`);
+                        }}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
