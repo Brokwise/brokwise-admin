@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Calendar,
   dateFnsLocalizer,
@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
+import { useCalendarEvents, NoteEvent } from "@/hooks/useCalendarEvents";
 
 const locales = {
   "en-US": enUS,
@@ -35,15 +36,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-interface NoteEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  desc?: string;
-  allDay?: boolean;
-}
 
 const CustomToolbar = (toolbar: ToolbarProps<NoteEvent>) => {
   const goToBack = () => {
@@ -82,38 +74,34 @@ const CustomToolbar = (toolbar: ToolbarProps<NoteEvent>) => {
   );
 };
 
-export function CalendarNotes() {
-  const [events, setEvents] = useState<NoteEvent[]>([]);
+export interface CalendarNotesProps {
+  events?: NoteEvent[];
+  onAdd?: (e: NoteEvent) => void;
+  onUpdate?: (e: NoteEvent) => void;
+  onDelete?: (id: string) => void;
+}
+
+export function CalendarNotes({
+  events: extEvents,
+  onAdd,
+  onUpdate,
+  onDelete,
+}: CalendarNotesProps) {
+  const isControlled = !!extEvents;
+  const {
+    events: hookEvents,
+    addEvent: hookAdd,
+    updateEvent: hookUpdate,
+    deleteEvent: hookDelete,
+  } = useCalendarEvents({ persist: !isControlled });
+
+  const events = isControlled ? extEvents! : hookEvents;
+  const addEvent = isControlled ? onAdd! : hookAdd;
+  const updateEvent = isControlled ? onUpdate! : hookUpdate;
+  const deleteEvent = isControlled ? onDelete! : hookDelete;
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<Partial<NoteEvent>>({});
-
-  // Load from local storage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedEvents = localStorage.getItem("calendar-notes");
-      if (savedEvents) {
-        try {
-          const parsed = JSON.parse(savedEvents).map(
-            (e: NoteEvent & { start: string; end: string }) => ({
-              ...e,
-              start: new Date(e.start),
-              end: new Date(e.end),
-            })
-          );
-          setEvents(parsed);
-        } catch (e) {
-          console.error("Failed to parse calendar notes", e);
-        }
-      }
-    }
-  }, []);
-
-  // Save to local storage
-  useEffect(() => {
-    if (typeof window !== "undefined" && events.length > 0) {
-      localStorage.setItem("calendar-notes", JSON.stringify(events));
-    }
-  }, [events]);
 
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     setCurrentEvent({
@@ -134,13 +122,7 @@ export function CalendarNotes() {
 
     if (currentEvent.id) {
       // Update existing
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === currentEvent.id
-            ? ({ ...e, ...currentEvent } as NoteEvent)
-            : e
-        )
-      );
+      updateEvent({ ...currentEvent } as NoteEvent);
     } else {
       // Create new
       const newEvent: NoteEvent = {
@@ -150,8 +132,9 @@ export function CalendarNotes() {
         end: currentEvent.end!,
         desc: currentEvent.desc,
         allDay: currentEvent.allDay,
+        completed: false,
       };
-      setEvents((prev) => [...prev, newEvent]);
+      addEvent(newEvent);
     }
     setIsDialogOpen(false);
     setCurrentEvent({});
@@ -159,7 +142,7 @@ export function CalendarNotes() {
 
   const handleDelete = () => {
     if (currentEvent.id) {
-      setEvents((prev) => prev.filter((e) => e.id !== currentEvent.id));
+      deleteEvent(currentEvent.id);
       setIsDialogOpen(false);
       setCurrentEvent({});
     }

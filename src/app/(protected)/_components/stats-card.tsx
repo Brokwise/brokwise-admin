@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface StatsCardProps {
   title: string;
@@ -8,6 +9,7 @@ interface StatsCardProps {
   icon?: LucideIcon;
   variant?: "blue" | "green" | "yellow" | "red" | "gray";
   children?: React.ReactNode;
+  link?: string;
 }
 
 const colorMap = {
@@ -24,9 +26,16 @@ export function StatsCard({
   icon: Icon,
   variant = "blue",
   children,
+  link,
 }: StatsCardProps) {
+  const router = useRouter();
   return (
-    <Card className="shadow-none overflow-hidden relative">
+    <Card
+      className="cursor-pointer shadow-none overflow-hidden relative"
+      onClick={() => {
+        link && router.push(link);
+      }}
+    >
       <div
         className={cn(
           "absolute bottom-0 h-full w-full blur-2xl bg-grain opacity-50",

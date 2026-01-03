@@ -42,6 +42,35 @@ import {
   useGetStats,
 } from "@/hooks/useKPI";
 import { useState, useMemo } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar as CalendarIcon,
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { CalendarNotes } from "./calendar-notes";
+import { useCalendarEvents, NoteEvent } from "@/hooks/useCalendarEvents";
+import { isSameDay } from "date-fns";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const processStats = (counts: Array<Record<string, number>> = []) => {
   let total = 0;
@@ -91,78 +120,6 @@ const trendChartConfig = {
   },
 } satisfies ChartConfig;
 
-// Row 3: Tables
-// const recentEnquiries = [
-//   {
-//     id: "ENQ-101",
-//     client: "Alice Johnson",
-//     property: "Sunset Villa",
-//     date: "2 mins ago",
-//     status: "New",
-//   },
-//   {
-//     id: "ENQ-102",
-//     client: "Bob Smith",
-//     property: "Downtown Loft",
-//     date: "15 mins ago",
-//     status: "Pending",
-//   },
-//   {
-//     id: "ENQ-103",
-//     client: "Charlie Davis",
-//     property: "Office Space 4B",
-//     date: "1 hour ago",
-//     status: "Reviewed",
-//   },
-//   {
-//     id: "ENQ-104",
-//     client: "Dana Lee",
-//     property: "Warehouse 12",
-//     date: "3 hours ago",
-//     status: "New",
-//   },
-//   {
-//     id: "ENQ-105",
-//     client: "Evan Wright",
-//     property: "Seaside Condo",
-//     date: "5 hours ago",
-//     status: "Closed",
-//   },
-// ];
-
-// const recentBrokers = [
-//   {
-//     id: "BRK-201",
-//     name: "Sarah Conner",
-//     agency: "Sky High Realty",
-//     joined: "Today",
-//   },
-//   {
-//     id: "BRK-202",
-//     name: "John Doe",
-//     agency: "Urban Living",
-//     joined: "Yesterday",
-//   },
-//   {
-//     id: "BRK-203",
-//     name: "Jane Smith",
-//     agency: "Prime Estates",
-//     joined: "2 days ago",
-//   },
-//   {
-//     id: "BRK-204",
-//     name: "Mike Ross",
-//     agency: "Legal Homes",
-//     joined: "3 days ago",
-//   },
-//   {
-//     id: "BRK-205",
-//     name: "Rachel Zane",
-//     agency: "Pearson Specter",
-//     joined: "4 days ago",
-//   },
-// ];
-
 export const KPI = () => {
   const [timeFrame, setTimeFrame] = useState<"YEAR" | "MONTH" | "ALL" | "WEEK">(
     "MONTH"
@@ -173,6 +130,36 @@ export const KPI = () => {
   const { data: distribution } = useGetPropertyDistribution();
   const { data: avgValue } = useGetAvgPropertyValue();
 
+  const { events, addEvent, updateEvent, deleteEvent, toggleComplete } =
+    useCalendarEvents();
+  const [newEventTitle, setNewEventTitle] = useState("");
+  const [editingEvent, setEditingEvent] = useState<NoteEvent | null>(null);
+
+  const todayEvents = events.filter(
+    (e) => e.start && isSameDay(new Date(e.start), new Date())
+  );
+
+  const handleAddQuickEvent = () => {
+    if (!newEventTitle.trim()) return;
+    const now = new Date();
+    addEvent({
+      id: crypto.randomUUID(),
+      title: newEventTitle,
+      start: now,
+      end: now,
+      allDay: true,
+      completed: false,
+    });
+    setNewEventTitle("");
+  };
+
+  const handleUpdateEvent = () => {
+    if (editingEvent) {
+      updateEvent(editingEvent);
+      setEditingEvent(null);
+    }
+  };
+
   const listingStats = processStats(data?.listingCounts);
   const enquiryStats = processStats(data?.enquiryCounts);
   const brokerStats = processStats(data?.brokerCounts);
@@ -181,13 +168,10 @@ export const KPI = () => {
   const chartData = useMemo(() => {
     if (!listingTrend || !enquiryTrend) return [];
 
-    // Create a map for enquiries for faster lookup
     const enquiryMap = new Map(
       enquiryTrend.map((item) => [item.period, item.count])
     );
 
-    // Merge listings with enquiries
-    // Assuming both endpoints return the same periods for the same timeFrame
     return listingTrend.map((item) => ({
       month: item.period,
       listings: item.count,
@@ -198,14 +182,10 @@ export const KPI = () => {
   const distributionData = useMemo(() => {
     if (!distribution) return [];
 
-    // The backend returns an array of objects like [{ "CATEGORY_TYPE": 25.5 }, ...]
-    // We need to transform this into what the UI expects
     return distribution
       .map((item, index) => {
         const key = Object.keys(item)[0];
-        const value = item[key]; // This is percentage
-
-        // Generate a color based on index
+        const value = item[key];
         const colors = [
           "bg-blue-500",
           "bg-green-500",
@@ -221,37 +201,40 @@ export const KPI = () => {
           location: key
             .replace(/_/g, " ")
             .toLowerCase()
-            .replace(/\b\w/g, (c) => c.toUpperCase()), // Title Case
-          value: value, // This is percentage
-          total: 100, // Since value is percentage
+            .replace(/\b\w/g, (c) => c.toUpperCase()),
+          value: value,
+          total: 100,
           color: colors[index % colors.length],
         };
       })
-      .sort((a, b) => b.value - a.value); // Sort by highest percentage
+      .sort((a, b) => b.value - a.value);
   }, [distribution]);
 
   return (
     <main className="container py-10 space-y-6">
       <h1 className="text-2xl font-semibold">Key performance Indicators</h1>
       <div className="flex gap-4 ">
-        <div className="w-full grid gap-4 md:grid-cols-4 lg:grid-cols-4">
+        <div className="w-full grid gap-4 md:grid-cols-5 lg:grid-cols-5">
           <StatsCard
             title="Total Listings"
             value={listingStats.total.toLocaleString()}
             icon={Building2}
             variant="blue"
+            link={"/properties"}
           >
             <Breakdown items={listingStats.breakdown} />
           </StatsCard>
           <StatsCard
             title="Total Enquiries"
             value={enquiryStats.total.toLocaleString()}
+            link={"/enquiries"}
             icon={MessageSquare}
             variant="green"
           >
             <Breakdown items={enquiryStats.breakdown} />
           </StatsCard>
           <StatsCard
+            link={"/brokers"}
             title="Total Brokers"
             value={brokerStats.total.toLocaleString()}
             icon={Users}
@@ -260,6 +243,7 @@ export const KPI = () => {
             <Breakdown items={brokerStats.breakdown} />
           </StatsCard>
           <StatsCard
+            link={"/companies"}
             title="Total Companies"
             value={companyStats.total.toLocaleString()}
             icon={AlertCircle}
@@ -267,15 +251,147 @@ export const KPI = () => {
           >
             <Breakdown items={companyStats.breakdown} />
           </StatsCard>
+          <Card className="flex flex-col">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold flex items-center justify-between">
+                <span>Today's Tasks</span>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-8 w-8">
+                      <CalendarIcon className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl h-[700px]">
+                    <CalendarNotes
+                      events={events}
+                      onAdd={addEvent}
+                      onUpdate={updateEvent}
+                      onDelete={deleteEvent}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add new task..."
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddQuickEvent()}
+                />
+                <Button size="icon" onClick={handleAddQuickEvent}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {todayEvents.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No tasks for today
+                  </p>
+                )}
+                {todayEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors group"
+                  >
+                    <Checkbox
+                      checked={event.completed}
+                      onCheckedChange={() => toggleComplete(event.id)}
+                      id={`task-${event.id}`}
+                    />
+                    <label
+                      htmlFor={`task-${event.id}`}
+                      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1 cursor-pointer ${
+                        event.completed
+                          ? "line-through text-muted-foreground"
+                          : ""
+                      }`}
+                    >
+                      {event.title}
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => setEditingEvent(event)}
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => deleteEvent(event.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Dialog
+            open={!!editingEvent}
+            onOpenChange={(open) => !open && setEditingEvent(null)}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Task</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-title">Title</Label>
+                  <Input
+                    id="edit-title"
+                    value={editingEvent?.title || ""}
+                    onChange={(e) =>
+                      setEditingEvent(
+                        editingEvent
+                          ? { ...editingEvent, title: e.target.value }
+                          : null
+                      )
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-desc">Description</Label>
+                  <Textarea
+                    id="edit-desc"
+                    value={editingEvent?.desc || ""}
+                    onChange={(e) =>
+                      setEditingEvent(
+                        editingEvent
+                          ? { ...editingEvent, desc: e.target.value }
+                          : null
+                      )
+                    }
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditingEvent(null)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateEvent}>Save Changes</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
-        {/* <div className="w-1/2">
-          <CalendarNotes />
-        </div> */}
       </div>
 
-      {/* Row 2: Charts Area */}
       <div className="grid gap-4 md:grid-cols-10">
-        {/* Left Chart: Performance (60%) */}
         <Card className="md:col-span-6 shadow-sm border-none bg-card/50">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div className="space-y-1">
@@ -338,11 +454,9 @@ export const KPI = () => {
                   tickMargin={12}
                   tickFormatter={(value) => {
                     if (timeFrame === "YEAR" || timeFrame === "ALL") {
-                      // Format YYYY-MM to Month Name or similar if needed
-                      // For now keeping simpler format
                       return value;
                     }
-                    // For daily data, maybe show Day only or MM-DD
+
                     return value.slice(5);
                   }}
                   stroke="hsl(var(--muted-foreground))"
@@ -393,16 +507,15 @@ export const KPI = () => {
           </CardContent>
         </Card>
 
-        {/* Right Panel: Highlights (40%) */}
         <Card className="md:col-span-4 shadow-sm border-none bg-card/50 flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg font-semibold">Highlights</CardTitle>
-            <Badge
+            {/* <Badge
               variant="secondary"
               className="text-green-500 bg-green-500/10 hover:bg-green-500/20"
             >
               +8.4% MoM
-            </Badge>
+            </Badge> */}
           </CardHeader>
           <CardContent className="flex-1 space-y-6">
             {/* Mini Stat Cards */}
@@ -421,12 +534,12 @@ export const KPI = () => {
                       }).format(Number(avgValue))
                     : "AED 0"}
                 </div>
-                <div className="mt-1 text-xs font-medium text-green-500 flex items-center">
+                {/* <div className="mt-1 text-xs font-medium text-green-500 flex items-center">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   2.1%
-                </div>
+                </div> */}
               </div>
-              <div className="rounded-xl border bg-card p-4 shadow-sm">
+              {/* <div className="rounded-xl border bg-card p-4 shadow-sm">
                 <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Conversion
                 </div>
@@ -435,7 +548,7 @@ export const KPI = () => {
                   <ArrowDownRight className="h-3 w-3 mr-1" />
                   0.6%
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Top Locations (Progress Bars) */}
