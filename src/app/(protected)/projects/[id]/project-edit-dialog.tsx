@@ -33,6 +33,7 @@ const projectFormSchema = z.object({
     .default(4),
   description: z.string().optional(),
   reraNumber: z.string().optional(),
+  adminBookingTokenAmount: z.coerce.number(),
 });
 
 type ProjectFormValues = z.infer<typeof projectFormSchema>;
@@ -57,6 +58,8 @@ export const ProjectEditDialog = ({
       holdTime: project.holdTime || 4,
       description: project.description || "",
       reraNumber: project.reraNumber || "",
+      adminBookingTokenAmount:
+        project.adminBookingTokenAmount || project.bookingTokenAmount || 0,
     },
   });
 
@@ -67,6 +70,8 @@ export const ProjectEditDialog = ({
         holdTime: project.holdTime || 4,
         description: project.description || "",
         reraNumber: project.reraNumber || "",
+        adminBookingTokenAmount:
+          project.adminBookingTokenAmount || project.bookingTokenAmount || 0,
       });
     }
   }, [open, project, form]);
@@ -80,6 +85,7 @@ export const ProjectEditDialog = ({
           holdTime: data.holdTime,
           description: data.description,
           reraNumber: data.reraNumber,
+          adminBookingTokenAmount: data.adminBookingTokenAmount,
         },
       },
       {
@@ -127,6 +133,22 @@ export const ProjectEditDialog = ({
                   <FormDescription>
                     Duration in hours for which a plot remains on hold before
                     automatically releasing.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="adminBookingTokenAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Admin Booking token amount</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Updated booking token amount
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

@@ -364,6 +364,23 @@ const ProjectPage = () => {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">
+                    Admin Booking Token Amount
+                  </p>
+                  <div className="font-medium">
+                    {project.bookingTokenAmount
+                      ? new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                          maximumFractionDigits: 0,
+                        }).format(
+                          project.adminBookingTokenAmount ||
+                            project.bookingTokenAmount
+                        )
+                      : "-"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">
                     Possession Date
                   </p>
                   <div className="flex items-center gap-2 font-medium">

@@ -26,15 +26,77 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useTheme } from "next-themes";
-import { usePendingItems } from "@/hooks/usePendingItems";
+import { usePendingItems, PendingItems } from "@/hooks/usePendingItems";
+
+const STORAGE_KEY = "brokwise_admin_seen_counts";
 
 const AppSidebar = () => {
   const logout = useAuthStore((state) => state.logout);
   const { theme, setTheme } = useTheme();
   const { pendingItems } = usePendingItems();
+
+  const [seenCounts, setSeenCounts] = useState<Record<string, number>>({});
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setSeenCounts(JSON.parse(stored));
+      } catch (error) {
+        console.error("Failed to parse seen counts from local storage", error);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seenCounts));
+    }
+  }, [seenCounts, isLoaded]);
+
+  useEffect(() => {
+    if (pendingItems && isLoaded) {
+      setSeenCounts((prev) => {
+        const next = { ...prev };
+        let hasChanges = false;
+
+        (Object.keys(pendingItems) as Array<keyof PendingItems>).forEach(
+          (key) => {
+            const current = pendingItems[key] || 0;
+            const seen = next[key] || 0;
+            if (current < seen) {
+              next[key] = current;
+              hasChanges = true;
+            }
+          }
+        );
+
+        return hasChanges ? next : prev;
+      });
+    }
+  }, [pendingItems, isLoaded]);
+
+  const handleItemClick = (key: keyof PendingItems) => {
+    if (pendingItems) {
+      setSeenCounts((prev) => ({
+        ...prev,
+        [key]: pendingItems[key] || 0,
+      }));
+    }
+  };
+
+  const getBadgeCount = (key: keyof PendingItems) => {
+    if (!pendingItems) return 0;
+    const current = pendingItems[key] || 0;
+    const seen = seenCounts[key] || 0;
+    return Math.max(0, current - seen);
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -66,55 +128,64 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Brokers">
-              <Link href="/brokers">
+              <Link href="/brokers" onClick={() => handleItemClick("brokers")}>
                 <Users />
                 <span>Brokers</span>
               </Link>
             </SidebarMenuButton>
-            {pendingItems?.brokers ? (
+            {getBadgeCount("brokers") > 0 && (
               <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {pendingItems.brokers}
+                {getBadgeCount("brokers")}
               </SidebarMenuBadge>
-            ) : null}
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Companies">
-              <Link href="/companies">
+              <Link
+                href="/companies"
+                onClick={() => handleItemClick("companies")}
+              >
                 <Briefcase />
                 <span>Companies</span>
               </Link>
             </SidebarMenuButton>
-            {pendingItems?.companies ? (
+            {getBadgeCount("companies") > 0 && (
               <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {pendingItems.companies}
+                {getBadgeCount("companies")}
               </SidebarMenuBadge>
-            ) : null}
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Properties">
-              <Link href="/properties">
+              <Link
+                href="/properties"
+                onClick={() => handleItemClick("properties")}
+              >
                 <Building2 />
                 <span>Properties</span>
               </Link>
             </SidebarMenuButton>
-            {pendingItems?.properties ? (
+            {getBadgeCount("properties") > 0 && (
               <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {pendingItems.properties}
+                {getBadgeCount("properties")}
               </SidebarMenuBadge>
-            ) : null}
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Enquiries">
-              <Link href="/enquiries">
+              <Link
+                href="/enquiries"
+                onClick={() => handleItemClick("enquiries")}
+              >
                 <MessageCircle />
                 <span>Enquiries</span>
               </Link>
             </SidebarMenuButton>
-            {pendingItems?.enquiries ? (
+            {getBadgeCount("enquiries") > 0 && (
               <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {pendingItems.enquiries}
+                {getBadgeCount("enquiries")}
               </SidebarMenuBadge>
-            ) : null}
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="JDA Forms">
@@ -125,7 +196,7 @@ const AppSidebar = () => {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="JDA Forms">
+            <SidebarMenuButton asChild tooltip="Messages">
               <Link href="/messages">
                 <MessageCircleMore />
                 <span>Messages</span>
@@ -134,19 +205,22 @@ const AppSidebar = () => {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Developers">
-              <Link href="/developers">
+              <Link
+                href="/developers"
+                onClick={() => handleItemClick("developers")}
+              >
                 <UserStarIcon />
                 <span>Developers</span>
               </Link>
             </SidebarMenuButton>
-            {pendingItems?.developers ? (
+            {getBadgeCount("developers") > 0 && (
               <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {pendingItems.developers}
+                {getBadgeCount("developers")}
               </SidebarMenuBadge>
-            ) : null}
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="JDA Forms">
+            <SidebarMenuButton asChild tooltip="Projects">
               <Link href="/projects">
                 <LandPlotIcon />
                 <span>Projects</span>

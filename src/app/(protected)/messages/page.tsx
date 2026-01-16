@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-
 import {
   useGetConversations,
   useGetConversationDetails,
@@ -21,6 +20,13 @@ import {
   Search,
   User,
   Paperclip,
+  Plus,
+  MoreVertical,
+  Phone,
+  Video,
+  Info,
+  Image as ImageIcon,
+  X,
   MessageSquarePlusIcon,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -31,18 +37,27 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { useBroker } from "@/hooks/useBroker";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 export default function MessagesPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
   const { brokers } = useBroker();
-  console.log(brokers);
   const [messageInput, setMessageInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [brokerSearchQuery, setBrokerSearchQuery] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -143,50 +158,98 @@ export default function MessagesPage() {
   };
   const handleStartConversation = async (brokerId: string) => {
     mutate({ participantId: brokerId, participantType: "Broker" });
+    // Ideally we would select the conversation after creation,
+    // but the API might not return it immediately or we'd need to refetch.
   };
 
+  const filteredConversations = conversations?.filter((conversation) =>
+    getParticipantName(conversation)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  const filteredBrokers = brokers?.filter(
+    (b) =>
+      b.firstName?.toLowerCase().includes(brokerSearchQuery.toLowerCase()) ||
+      b.lastName?.toLowerCase().includes(brokerSearchQuery.toLowerCase()) ||
+      b.email?.toLowerCase().includes(brokerSearchQuery.toLowerCase())
+  );
+
   return (
-    <div className="flex h-[calc(95vh-theme(spacing.20))] overflow-hidden rounded-lg border bg-background shadow-sm">
-      <div className="w-80 flex-shrink-0 border-r bg-muted/10 md:w-96 flex flex-col">
-        <div className="p-4 border-b flex-shrink-0">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-semibold tracking-tight mb-4">
-              Messages
-            </h2>
+    <div className="flex h-[calc(100vh-2rem)] overflow-hidden rounded-xl border bg-background shadow-sm">
+      {/* Sidebar */}
+      <div className="w-80 flex-shrink-0 border-r bg-muted/5 flex flex-col md:w-96">
+        <div className="p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">Messages</h2>
             <Dialog>
-              <DialogTrigger>
-                <Button variant={"outline"}>
-                  <MessageSquarePlusIcon />
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Plus className="h-5 w-5" />
+                  <span className="sr-only">New message</span>
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <h1>Select broker to continue</h1>
+                  <DialogTitle>New Conversation</DialogTitle>
+                  <DialogDescription>
+                    Start a new conversation with a broker.
+                  </DialogDescription>
                 </DialogHeader>
-                <DialogDescription>
-                  {brokers?.map((b, index) => (
-                    <div key={index}>
-                      {b.firstName}{" "}
+                <div className="py-2">
+                  <Input
+                    placeholder="Search brokers..."
+                    value={brokerSearchQuery}
+                    onChange={(e) => setBrokerSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
+                  {filteredBrokers?.map((b) => (
+                    <div
+                      key={b._id}
+                      className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {b.firstName?.charAt(0) || "B"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="grid gap-0.5">
+                          <p className="text-sm font-medium leading-none">
+                            {b.firstName} {b.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {b.email}
+                          </p>
+                        </div>
+                      </div>
                       <Button
-                        onClick={() => {
-                          handleStartConversation(b._id);
-                        }}
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleStartConversation(b._id)}
                       >
-                        Add
-                      </Button>{" "}
+                        Chat
+                      </Button>
                     </div>
                   ))}
-                </DialogDescription>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search messages..." className="pl-8" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search messages..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-background/50 border-muted-foreground/20"
+            />
           </div>
         </div>
+        <Separator />
         <ScrollArea className="flex-1">
-          <div className="flex flex-col gap-1 p-2">
+          <div className="flex flex-col p-2 gap-1">
             {isLoadingConversations ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 p-3">
@@ -197,34 +260,39 @@ export default function MessagesPage() {
                   </div>
                 </div>
               ))
-            ) : conversations?.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">
-                No conversations found
+            ) : filteredConversations?.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                <div className="h-12 w-12 rounded-full bg-muted/20 flex items-center justify-center">
+                  <Search className="h-6 w-6 opacity-20" />
+                </div>
+                <p>
+                  {searchQuery ? "No messages found" : "No conversations yet"}
+                </p>
               </div>
             ) : (
-              conversations?.map((conversation) => {
+              filteredConversations?.map((conversation) => {
                 const isSelected = selectedConversationId === conversation._id;
                 return (
                   <button
                     key={conversation._id}
                     onClick={() => setSelectedConversationId(conversation._id)}
                     className={cn(
-                      "flex items-start gap-3 rounded-md p-3 text-left transition-all hover:bg-accent",
-                      isSelected && "bg-accent"
+                      "flex items-start gap-3 rounded-lg p-3 text-left transition-all hover:bg-muted/50",
+                      isSelected && "bg-muted"
                     )}
                   >
-                    <Avatar>
-                      <AvatarFallback>
+                    <Avatar className="h-10 w-10 border">
+                      <AvatarFallback className="bg-primary/10 text-primary">
                         {getParticipantInitial(conversation)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 overflow-hidden">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium truncate">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium truncate text-sm">
                           {getParticipantName(conversation)}
                         </span>
                         {conversation.lastMessageAt && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[10px] text-muted-foreground shrink-0">
                             {format(
                               new Date(conversation.lastMessageAt),
                               "MMM d"
@@ -232,15 +300,17 @@ export default function MessagesPage() {
                           </span>
                         )}
                       </div>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {conversation.lastMessage || "No messages yet"}
-                      </p>
+                      <div className="flex justify-between items-center">
+                        <p className="truncate text-xs text-muted-foreground max-w-[180px]">
+                          {conversation.lastMessage || "Started a conversation"}
+                        </p>
+                        {conversation.unreadCount ? (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-medium">
+                            {conversation.unreadCount}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                    {conversation.unreadCount ? (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                        {conversation.unreadCount}
-                      </span>
-                    ) : null}
                   </button>
                 );
               })
@@ -250,32 +320,62 @@ export default function MessagesPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex flex-1 flex-col bg-background h-full overflow-hidden">
+      <div className="flex flex-1 flex-col bg-background min-w-0">
         {selectedConversationId ? (
           <>
             {/* Chat Header */}
-            <div className="flex h-16 items-center border-b px-6 flex-shrink-0">
+            <div className="flex h-16 items-center justify-between border-b px-6 py-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               {conversations
                 ?.filter((c) => c._id === selectedConversationId)
                 .map((c) => (
-                  <div key={c._id} className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback>
+                  <div key={c._id} className="flex items-center gap-4">
+                    <Avatar className="h-10 w-10 border">
+                      <AvatarFallback className="bg-primary/10 text-primary">
                         {getParticipantInitial(c)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-semibold">{getParticipantName(c)}</h3>
-                      <p className="text-xs text-muted-foreground">
-                        {c.participantType}
-                      </p>
+                      <h3 className="font-semibold text-sm leading-none mb-1">
+                        {getParticipantName(c)}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2 w-2 rounded-full bg-green-500" />
+                        <p className="text-xs text-muted-foreground">
+                          {c.participantType}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground"
+                >
+                  <Phone className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground"
+                >
+                  <Video className="h-4 w-4" />
+                </Button>
+                <Separator orientation="vertical" className="h-6 mx-1" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
+            {/* Messages List */}
             <ScrollArea className="flex-1 p-6">
-              <div className="flex flex-col gap-4 min-h-full justify-end">
+              <div className="flex flex-col gap-6 min-h-full justify-end">
                 {isLoadingMessages && !conversationDetails ? (
                   <div className="flex items-center justify-center py-10">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -284,40 +384,64 @@ export default function MessagesPage() {
                   conversationDetails?.messages
                     .slice()
                     .reverse()
-                    .map((message) => {
+                    .map((message, index, arr) => {
                       const isMe = message.senderType === "Admin";
+                      // Check if previous message was from same sender to group them visually (optional enhancement)
+                      // const isSequence = index > 0 && arr[index - 1].senderType === message.senderType;
 
                       return (
                         <div
                           key={message._id}
                           className={cn(
-                            "flex w-max max-w-[75%] flex-col gap-1 rounded-lg px-4 py-2 text-sm",
-                            isMe
-                              ? "ml-auto bg-primary text-primary-foreground"
-                              : "bg-muted"
+                            "flex flex-col max-w-[70%]",
+                            isMe ? "ml-auto items-end" : "mr-auto items-start"
                           )}
                         >
-                          {message.type === "image" && message.mediaUrl ? (
-                            <Image
-                              width={100}
-                              height={100}
-                              src={message.mediaUrl}
-                              alt="Image"
-                              className="rounded-md max-w-full h-auto max-h-[300px] object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <p>{message.content}</p>
-                          )}
-                          <span
+                          <div
                             className={cn(
-                              "text-[10px]",
+                              "px-4 py-2.5 shadow-sm text-sm relative group",
                               isMe
-                                ? "text-primary-foreground/70"
-                                : "text-muted-foreground"
+                                ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm"
+                                : "bg-muted rounded-2xl rounded-tl-sm"
                             )}
                           >
-                            {format(new Date(message.createdAt), "HH:mm")}
+                            {message.type === "image" && message.mediaUrl ? (
+                              <div className="relative">
+                                <Image
+                                  width={300}
+                                  height={300}
+                                  src={message.mediaUrl}
+                                  alt="Shared image"
+                                  className="rounded-lg max-w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ) : (
+                              <p className="leading-relaxed whitespace-pre-wrap">
+                                {message.content}
+                              </p>
+                            )}
+
+                            {/* Time Tooltip on Hover or always visible tiny */}
+                            <span
+                              className={cn(
+                                "absolute bottom-0 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap mb-[-1.5rem]",
+                                isMe
+                                  ? "right-0 text-muted-foreground"
+                                  : "left-0 text-muted-foreground"
+                              )}
+                            >
+                              {format(new Date(message.createdAt), "h:mm a")}
+                            </span>
+                          </div>
+                          {/* Alternative Timestamp placement (below bubble) */}
+                          <span
+                            className={cn(
+                              "text-[10px] text-muted-foreground mt-1 px-1",
+                              isMe ? "text-right" : "text-left"
+                            )}
+                          >
+                            {format(new Date(message.createdAt), "h:mm a")}
                           </span>
                         </div>
                       );
@@ -328,10 +452,10 @@ export default function MessagesPage() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="p-4 border-t bg-background flex-shrink-0">
+            <div className="p-4 bg-background border-t">
               <form
                 onSubmit={handleSendMessage}
-                className="flex gap-2 items-end"
+                className="flex items-end gap-2 max-w-4xl mx-auto"
               >
                 <input
                   type="file"
@@ -340,55 +464,128 @@ export default function MessagesPage() {
                   accept="image/*"
                   onChange={handleFileSelect}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  disabled={sendMessageMutation.isPending || isUploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {isUploading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Paperclip className="h-4 w-4" />
-                  )}
-                </Button>
-                <Input
-                  placeholder="Type your message..."
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  disabled={sendMessageMutation.isPending || isUploading}
-                  className="flex-1"
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={
-                    sendMessageMutation.isPending ||
-                    !messageInput.trim() ||
-                    isUploading
-                  }
-                >
-                  {sendMessageMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                        disabled={sendMessageMutation.isPending || isUploading}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {isUploading ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <ImageIcon className="h-5 w-5" />
+                        )}
+                        <span className="sr-only">Attach file</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Attach image</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="Type your message..."
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    disabled={sendMessageMutation.isPending || isUploading}
+                    className="pr-12 min-h-[44px] py-3 rounded-full bg-muted/30 border-muted-foreground/20 focus-visible:ring-offset-0"
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={
+                      sendMessageMutation.isPending ||
+                      !messageInput.trim() ||
+                      isUploading
+                    }
+                    className={cn(
+                      "absolute right-1 top-1 h-9 w-9 rounded-full transition-all",
+                      messageInput.trim()
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-90"
+                    )}
+                  >
+                    {sendMessageMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">Send</span>
+                  </Button>
+                </div>
               </form>
             </div>
           </>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center text-muted-foreground">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/20">
-              <User className="h-10 w-10 opacity-20" />
+          <div className="flex flex-1 flex-col items-center justify-center text-muted-foreground bg-muted/5">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted/20 mb-6">
+              <MessageSquarePlusIcon className="h-10 w-10 opacity-20" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">
+            <h3 className="text-xl font-semibold text-foreground">
               Select a conversation
             </h3>
-            <p className="text-sm">
-              Choose a conversation from the sidebar to start chatting
+            <p className="text-sm max-w-xs text-center mt-2">
+              Choose a conversation from the sidebar or start a new one to begin
+              chatting.
             </p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="mt-6">Start New Conversation</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>New Conversation</DialogTitle>
+                  <DialogDescription>
+                    Select a broker to chat with
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-2">
+                  <Input
+                    placeholder="Search brokers..."
+                    value={brokerSearchQuery}
+                    onChange={(e) => setBrokerSearchQuery(e.target.value)}
+                  />
+                </div>
+                {/* Reusing the broker list logic or extracting it would be better, but duplication for now is safe */}
+                <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
+                  {filteredBrokers?.map((b) => (
+                    <div
+                      key={b._id}
+                      className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {b.firstName?.charAt(0) || "B"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="grid gap-0.5">
+                          <p className="text-sm font-medium leading-none">
+                            {b.firstName} {b.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {b.email}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleStartConversation(b._id)}
+                      >
+                        Chat
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>

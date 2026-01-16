@@ -51,6 +51,7 @@ export interface Project {
   amenities?: string[];
   developmentStatus?: DevelopmentStatus;
   bookingTokenAmount?: number;
+  adminBookingTokenAmount?: number;
   holdTime?: number;
   projectStatus: ProjectStatus;
   createdAt: string;
