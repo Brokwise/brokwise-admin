@@ -18,15 +18,11 @@ import {
   Loader2,
   Send,
   Search,
-  User,
-  Paperclip,
   Plus,
   MoreVertical,
   Phone,
   Video,
-  Info,
   Image as ImageIcon,
-  X,
   MessageSquarePlusIcon,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -384,7 +380,7 @@ export default function MessagesPage() {
                   conversationDetails?.messages
                     .slice()
                     .reverse()
-                    .map((message, index, arr) => {
+                    .map((message) => {
                       const isMe = message.senderType === "Admin";
                       // Check if previous message was from same sender to group them visually (optional enhancement)
                       // const isSequence = index > 0 && arr[index - 1].senderType === message.senderType;
