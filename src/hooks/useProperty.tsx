@@ -192,3 +192,22 @@ export const useRejectOffer = () => {
   });
   return { mutate, isPending, error };
 };
+
+/**
+ * Get all deleted properties for admin view
+ */
+export const useDeletedProperties = () => {
+  const api = useAxios();
+  const {
+    data: deletedProperties,
+    isLoading: isLoadingDeletedProperties,
+    error: errorDeletedProperties,
+  } = useQuery<Property[]>({
+    queryKey: ["deleted-properties"],
+    queryFn: async () => {
+      const response = await api.get("/admin/properties/deleted");
+      return response.data?.data;
+    },
+  });
+  return { deletedProperties, isLoadingDeletedProperties, errorDeletedProperties };
+};
