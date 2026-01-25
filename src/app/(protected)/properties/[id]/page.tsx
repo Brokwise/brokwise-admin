@@ -69,6 +69,11 @@ const getStatusBadge = (status: ListingStatus) => {
       label: "Delisted",
       className: "bg-red-100 text-red-800 hover:bg-red-200",
     },
+    DELETED: {
+      variant: "destructive",
+      label: "Deleted",
+      className: "bg-red-600 text-white hover:bg-red-700",
+    },
   };
 
   const config = variants[status] || { variant: "outline", label: status };
@@ -503,6 +508,7 @@ const PropertyDetailsPage = () => {
                         <SelectItem value="RENTED">Rented</SelectItem>
                         <SelectItem value="EXPIRED">Expired</SelectItem>
                         <SelectItem value="DELISTED">Delisted</SelectItem>
+                        <SelectItem value="DELETED">Deleted</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -584,18 +590,49 @@ const PropertyDetailsPage = () => {
           </Card>
 
           {/* Extra Info Card (Optional: could handle deletion status here if needed) */}
-          {property.deletingStatus && (
+          {property.listingStatus === "DELETED" && (
             <Card className="border-red-200 bg-red-50">
               <CardHeader className="pb-2">
                 <CardTitle className="text-red-700 text-lg">
-                  Deletion Request
+                  Deletion Information
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-red-600">
-                  This property has a pending deletion request. Status:{" "}
-                  {property.deletingStatus}
-                </p>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-red-600/70 block text-xs mb-1">
+                      Deleted By
+                    </span>
+                    <span className="font-medium text-red-900">
+                      {typeof property.deletedBy === "object"
+                        ? (property.deletedBy as { firstName?: string; lastName?: string; name?: string; email?: string }).firstName
+                          ? `${(property.deletedBy as { firstName: string }).firstName} ${(property.deletedBy as { lastName: string }).lastName}`
+                          : (property.deletedBy as { name?: string; email?: string }).name || (property.deletedBy as { email?: string }).email
+                        : "Unknown"}
+                    </span>
+                    <span className="text-xs text-red-600/70 ml-1">
+                      ({property.deletedByType || "Unknown"})
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-red-600/70 block text-xs mb-1">
+                      Deleted At
+                    </span>
+                    <span className="font-medium text-red-900">
+                      {property.deletedAt
+                        ? new Date(property.deletedAt).toLocaleString()
+                        : "N/A"}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-red-600/70 block text-xs mb-1">
+                    Reason
+                  </span>
+                  <p className="text-red-900 text-sm whitespace-pre-wrap">
+                    {property.deletionReason || "No reason provided"}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           )}

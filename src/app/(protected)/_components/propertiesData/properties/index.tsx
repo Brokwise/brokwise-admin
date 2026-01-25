@@ -3,9 +3,7 @@
 import React from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { DeleteRequestsTable } from "./delete-requests-table";
-import { deleteRequestsColumns } from "./delete-requests-columns";
-import { useDeleteRequests, usePaginatedProperties, useDeletedProperties } from "@/hooks/useProperty";
+import { usePaginatedProperties, useDeletedProperties } from "@/hooks/useProperty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -38,13 +36,12 @@ export const PropertiesData = () => {
     errorProperties: errorEnquiryProperties,
   } = usePaginatedProperties({ page: enquiryPage, limit: enquiryPageSize });
 
-  const { deleteRequests, isLoadingDeleteRequests, errorDeleteRequests } =
-    useDeleteRequests();
+
 
   const { deletedProperties, isLoadingDeletedProperties } = useDeletedProperties();
 
   // Helper to get deleter name from potentially populated field
-  const getDeleterName = (deletedBy: Property["deletedBy"], deletedByType?: string) => {
+  const getDeleterName = (deletedBy: Property["deletedBy"]) => {
     if (!deletedBy) return "Unknown";
     if (typeof deletedBy === "string") return deletedBy;
     if (deletedBy.firstName && deletedBy.lastName) {
@@ -57,19 +54,12 @@ export const PropertiesData = () => {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <Tabs defaultValue="all-properties" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 max-w-[700px]">
+        <TabsList className="grid w-full grid-cols-3 max-w-[700px]">
           <TabsTrigger value="all-properties">All Properties</TabsTrigger>
           <TabsTrigger value="enquiry-only-properties">
             Enquiry only
           </TabsTrigger>
-          <TabsTrigger value="delete-requests">
-            Delete Requests{" "}
-            {deleteRequests && deleteRequests?.length > 0 && (
-              <Badge variant={"outline"} className="rounded-full ml-2">
-                {deleteRequests?.length}
-              </Badge>
-            )}
-          </TabsTrigger>
+
           <TabsTrigger value="deleted-properties">
             Deleted{" "}
             {deletedProperties && deletedProperties?.length > 0 && (
@@ -125,14 +115,7 @@ export const PropertiesData = () => {
             }}
           />
         </TabsContent>
-        <TabsContent value="delete-requests" className="mt-6">
-          <DeleteRequestsTable
-            columns={deleteRequestsColumns}
-            data={deleteRequests || []}
-            isLoading={isLoadingDeleteRequests}
-            error={errorDeleteRequests}
-          />
-        </TabsContent>
+
         <TabsContent value="deleted-properties" className="mt-6">
           {isLoadingDeletedProperties ? (
             <div className="flex justify-center py-8">
@@ -162,7 +145,7 @@ export const PropertiesData = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span>{getDeleterName(property.deletedBy, property.deletedByType)}</span>
+                            <span>{getDeleterName(property.deletedBy)}</span>
                             <span className="text-xs text-muted-foreground">
                               ({property.deletedByType || "Unknown"})
                             </span>
