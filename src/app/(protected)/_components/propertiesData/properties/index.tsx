@@ -17,12 +17,14 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Property } from "@/types/properties";
+import { useRouter } from "next/navigation";
 
 export const PropertiesData = () => {
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
   const [enquiryPage, setEnquiryPage] = React.useState(1);
   const [enquiryPageSize, setEnquiryPageSize] = React.useState(10);
+  const router = useRouter();
 
   const {
     propertiesPage: allPropertiesPage,
@@ -136,7 +138,11 @@ export const PropertiesData = () => {
                 <TableBody>
                   {deletedProperties && deletedProperties.length > 0 ? (
                     deletedProperties.map((property) => (
-                      <TableRow key={property._id}>
+                      <TableRow
+                        key={property._id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => router.push(`/properties/${property._id}`)}
+                      >
                         <TableCell className="font-medium">
                           {property.propertyId || property._id.slice(-8)}
                         </TableCell>
