@@ -51,7 +51,7 @@ export const columns: ColumnDef<Property>[] = [
               <Image
                 src={
                   image.includes("firebasestorage.googleapis.com") ||
-                  image.includes("picsum.photos")
+                    image.includes("picsum.photos")
                     ? image
                     : "/placeholder.webp"
                 }
@@ -257,6 +257,7 @@ function StatusCell({ property }: { property: Property }) {
         <SelectItem value="RENTED">Rented</SelectItem>
         <SelectItem value="EXPIRED">Expired</SelectItem>
         <SelectItem value="DELISTED">Delisted</SelectItem>
+        <SelectItem value="DELETED">Deleted</SelectItem>
       </SelectContent>
     </Select>
   );
