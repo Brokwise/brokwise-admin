@@ -59,6 +59,7 @@ export type ListingStatus =
   | "RENTED"
   | "EXPIRED"
   | "DELISTED"
+  | "DELETED"
   | "ENQUIRY_ONLY";
 
 export type PossessionStatus = "READY_TO_MOVE" | "UNDER_CONSTRUCTION";
@@ -175,6 +176,12 @@ export interface Property {
   updatedAt: string;
   deletingStatus?: "pending" | "approved" | "rejected" | null;
   offers?: PropertyOffer[];
+
+  // Soft deletion metadata
+  deletedAt?: string;
+  deletedBy?: string | { _id: string; firstName?: string; lastName?: string; name?: string; email?: string };
+  deletedByType?: "Broker" | "Admin";
+  deletionReason?: string;
 }
 
 export interface PropertyDeleteRequest {
@@ -199,16 +206,16 @@ export type OfferStatus =
 export interface PropertyOffer {
   _id: string;
   offerBy:
-    | string
-    | {
-        _id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        brokerId: string;
-        mobile: string;
-        companyName?: string;
-      };
+  | string
+  | {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    brokerId: string;
+    mobile: string;
+    companyName?: string;
+  };
   rate: number;
   status: OfferStatus;
   rejectionReason?: string;
