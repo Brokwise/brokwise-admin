@@ -24,6 +24,7 @@ import {
   UserStarIcon,
   LandPlotIcon,
   Calendar,
+  CircleDollarSign,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -179,6 +180,22 @@ const AppSidebar = () => {
               >
                 <MessageCircle />
                 <span>Enquiries</span>
+              </Link>
+            </SidebarMenuButton>
+            {getBadgeCount("enquiries") > 0 && (
+              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                {getBadgeCount("enquiries")}
+              </SidebarMenuBadge>
+            )}
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Enquiries">
+              <Link
+                href="/packs"
+                onClick={() => handleItemClick("enquiries")}
+              >
+                <CircleDollarSign />
+                <span>Credit Packs</span>
               </Link>
             </SidebarMenuButton>
             {getBadgeCount("enquiries") > 0 && (
