@@ -156,13 +156,35 @@ const EnquiryPage = () => {
                 </p>
               </div>
               <div className="space-y-1">
-                <span className="text-sm text-muted-foreground">Location</span>
-                <div className="flex items-start gap-1.5">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="font-medium">{enquiry.address || "N/A"}</p>
+                <span className="text-sm text-muted-foreground">
+                  {enquiry.preferredLocations && enquiry.preferredLocations.length > 1
+                    ? "Preferred Locations"
+                    : "Location"}
+                </span>
+                {enquiry.preferredLocations && enquiry.preferredLocations.length > 0 ? (
+                  <div className="space-y-2">
+                    {enquiry.preferredLocations.map((loc, i) => (
+                      <div key={i} className="flex items-start gap-1.5">
+                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium">{loc.address}</p>
+                          {enquiry.preferredLocations!.length > 1 && (
+                            <span className="text-xs text-muted-foreground">
+                              {i === 0 ? "Primary" : `Location ${i + 1}`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-start gap-1.5">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="font-medium">{enquiry.address || "N/A"}</p>
+                    </div>
+                  </div>
+                )}
               </div>
               {enquiry.size && (
                 <div className="space-y-1">

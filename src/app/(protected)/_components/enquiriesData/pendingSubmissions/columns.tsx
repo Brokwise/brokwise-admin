@@ -108,7 +108,8 @@ export const columns: ColumnDef<PendingSubmission>[] = [
         <div className="flex flex-col">
           <span className="font-medium text-sm">{enquiry.enquiryId}</span>
           <span className="text-xs text-muted-foreground">
-            {enquiry.enquiryType} • {enquiry.address}
+            {enquiry.enquiryType} • {enquiry.preferredLocations?.[0]?.address || enquiry.address}
+            {(enquiry.preferredLocations?.length ?? 0) > 1 && ` +${(enquiry.preferredLocations?.length ?? 1) - 1}`}
           </span>
         </div>
       );
