@@ -9,7 +9,7 @@ export interface AdminNotification {
   description: string;
   relatedId?: string;
   relatedModel?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   read: boolean;
   actionUrl?: string;
   createdAt: string;
