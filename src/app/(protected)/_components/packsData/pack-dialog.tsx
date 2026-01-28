@@ -52,6 +52,8 @@ const formSchema = z.object({
   sortOrder: z.coerce.number().int().optional().default(0),
 });
 
+type FormValues = z.output<typeof formSchema>;
+
 interface PackDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -62,8 +64,8 @@ export function PackDialog({ open, onOpenChange, packToEdit }: PackDialogProps) 
   const createPack = useCreateCreditPack();
   const updatePack = useUpdateCreditPack();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema) as never,
     defaultValues: {
       name: "",
       credits: 0,
@@ -99,7 +101,7 @@ export function PackDialog({ open, onOpenChange, packToEdit }: PackDialogProps) 
     }
   }, [packToEdit, form, open]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       if (packToEdit) {
         await updatePack.mutateAsync({

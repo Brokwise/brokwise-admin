@@ -52,6 +52,8 @@ const formSchema = z.object({
     .min(0, "Must be non-negative"),
 });
 
+type FormValues = z.output<typeof formSchema>;
+
 interface CreditsPriceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,8 +76,8 @@ export function CreditsPriceDialog({
 }: CreditsPriceDialogProps) {
   const updateCreditsPrice = useUpdateCreditsPrice();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema) as never,
     defaultValues: {
       REQUEST_CONTACT: 0,
       MARK_PROPERTY_AS_FEATURED: 0,
@@ -92,7 +94,7 @@ export function CreditsPriceDialog({
     }
   }, [currentPrices, form, open]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       await updateCreditsPrice.mutateAsync({
         credits: values,
