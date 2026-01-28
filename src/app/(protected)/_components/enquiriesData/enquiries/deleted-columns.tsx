@@ -166,10 +166,19 @@ export const deletedColumns: ColumnDef<Enquiry>[] = [
     accessorKey: "address",
     header: "Address",
     cell: ({ row }) => {
-      const address = row.original.address;
+      const locations = row.original.preferredLocations;
+      const address = locations?.[0]?.address || row.original.address;
+      const count = locations?.length ?? (address ? 1 : 0);
       return (
-        <div className="max-w-[220px] truncate" title={address}>
-          {address || <span className="text-muted-foreground">N/A</span>}
+        <div className="max-w-[220px]">
+          <div className="truncate" title={address}>
+            {address || <span className="text-muted-foreground">N/A</span>}
+          </div>
+          {count > 1 && (
+            <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4 mt-0.5">
+              +{count - 1} more
+            </Badge>
+          )}
         </div>
       );
     },

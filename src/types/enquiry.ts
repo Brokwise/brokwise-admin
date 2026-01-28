@@ -14,6 +14,14 @@ export type EnquirySource = "broker" | "admin";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 export type MessageThreadType = "enquirer_admin" | "submitter_admin";
 
+// === PREFERRED LOCATION ===
+export interface PreferredLocation {
+  address: string;
+  placeId?: string;
+  city?: string;
+  locality?: string;
+}
+
 // === RANGE TYPES ===
 export interface BudgetRange {
   min: number;
@@ -44,8 +52,9 @@ export interface Enquiry {
   enquiryCategory: PropertyCategory;
   enquiryType: PropertyType;
 
-  // Location (broker chooses city, not limited to own city)
+  // Location
   address: string;
+  preferredLocations?: PreferredLocation[];
   // Budget Range
   budget: BudgetRange;
 
@@ -149,6 +158,8 @@ export interface EnquirySubmission {
   forwardedToEnquirerAt?: Date;
   enquirerMessage?: string;
 
+  preferredLocationIndex?: number;
+
   createdAt: string;
   updatedAt: string;
 }
@@ -238,7 +249,8 @@ export interface MarketplaceFilters {
 }
 
 export interface CreateEnquiryDTO {
-  address: string;
+  address?: string;
+  preferredLocations?: PreferredLocation[];
   enquiryCategory: PropertyCategory;
   enquiryType: PropertyType;
   budget: BudgetRange;

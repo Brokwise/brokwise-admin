@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Resolver, useForm } from "react-hook-form";
+import { Resolver, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -80,11 +80,20 @@ const rentalIncomeRangeSchema = z
     path: ["max"],
   });
 
+const preferredLocationSchema = z.object({
+  address: z.string().default(""),
+  placeId: z.string().default(""),
+  city: z.string().default(""),
+  locality: z.string().default(""),
+});
+
 const createEnquirySchema = z.object({
-  address: z.string().min(3, "Address is required"),
-  addressPlaceId: z
-    .string()
-    .min(1, "Please select an address from suggestions"),
+  preferredLocations: z
+    .array(preferredLocationSchema)
+    .min(1, "At least one preferred location is required")
+    .max(3, "Cannot have more than 3 preferred locations"),
+  address: z.string().optional(),
+  addressPlaceId: z.string().optional(),
   enquiryCategory: z.enum([
     "RESIDENTIAL",
     "COMMERCIAL",
@@ -170,6 +179,7 @@ export const CreateEnquiry = () => {
       createEnquirySchema
     ) as Resolver<CreateEnquiryFormValues>,
     defaultValues: {
+      preferredLocations: [{ address: "", placeId: "", city: "", locality: "" }],
       address: "",
       addressPlaceId: "",
       budget: { min: 0, max: 0 },
@@ -180,7 +190,12 @@ export const CreateEnquiry = () => {
   const { watch, setValue, control } = form;
   const selectedCategory = watch("enquiryCategory");
   const selectedType = watch("enquiryType");
-  const addressLabel = watch("address");
+  const preferredLocations = watch("preferredLocations") ?? [];
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "preferredLocations",
+  });
 
   // Reset type when category changes
   useEffect(() => {
@@ -188,8 +203,18 @@ export const CreateEnquiry = () => {
   }, [selectedCategory, setValue]);
 
   const onSubmit = (data: CreateEnquiryFormValues) => {
-    const { addressPlaceId, ...payload } = data;
-    console.log(addressPlaceId);
+    // Clean preferredLocations: filter out empty entries, strip placeId
+    const cleanedLocations = (data.preferredLocations ?? [])
+      .filter((loc) => loc.address && loc.address.trim().length >= 3)
+      .map(({ placeId, ...rest }) => rest);
+
+    const { addressPlaceId, preferredLocations: _pl, ...rest } = data;
+    void addressPlaceId;
+    const payload = {
+      ...rest,
+      preferredLocations: cleanedLocations,
+      address: cleanedLocations[0]?.address || data.address || "",
+    };
     createEnquiry(payload as CreateEnquiryDTO, {
       onSuccess: () => {
         toast.success("Enquiry created successfully!");
@@ -296,41 +321,79 @@ export const CreateEnquiry = () => {
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 pb-8"
             >
-              {/* --- Location --- */}
+              {/* --- Preferred Locations --- */}
               <div className="space-y-4">
-                <FormField
-                  control={control}
-                  name="addressPlaceId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Address <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <AddressAutocomplete
-                          valueLabel={addressLabel}
-                          valueId={field.value}
-                          disabled={isPending}
-                          onSelect={(item) => {
-                            setValue("address", item.place_name, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            });
-                            field.onChange(item.id);
-                          }}
-                          onClear={() => {
-                            setValue("address", "", {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            });
-                            field.onChange("");
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex items-center justify-between">
+                  <FormLabel>
+                    Preferred Locations <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <span className="text-xs text-muted-foreground">
+                    Up to 3 locations
+                  </span>
+                </div>
+                {fields.map((field, index) => (
+                  <FormField
+                    key={field.id}
+                    control={control}
+                    name={`preferredLocations.${index}.placeId`}
+                    render={({ field: formField }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs text-muted-foreground">
+                          {index === 0 ? "Primary Location" : `Location ${index + 1} (Optional)`}
+                        </FormLabel>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <AddressAutocomplete
+                              valueLabel={preferredLocations[index]?.address ?? ""}
+                              valueId={formField.value ?? ""}
+                              disabled={isPending}
+                              onSelect={(item) => {
+                                setValue(`preferredLocations.${index}.address`, item.place_name, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                });
+                                formField.onChange(item.id);
+                              }}
+                              onClear={() => {
+                                setValue(`preferredLocations.${index}.address`, "", {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                });
+                                formField.onChange("");
+                              }}
+                            />
+                          </FormControl>
+                          {index > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="shrink-0 text-muted-foreground hover:text-destructive"
+                              onClick={() => remove(index)}
+                              disabled={isPending}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+                {fields.length < 3 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="text-muted-foreground"
+                    onClick={() => append({ address: "", placeId: "", city: "", locality: "" })}
+                    disabled={isPending}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add another location
+                  </Button>
+                )}
               </div>
 
               {/* --- Category & Type --- */}

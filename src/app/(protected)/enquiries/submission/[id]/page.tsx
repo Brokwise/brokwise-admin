@@ -136,6 +136,11 @@ const SubmissionPage = () => {
           <p className="text-muted-foreground">
             Review details for submission{" "}
             <span className="font-mono">{submission.submissionId}</span>
+            {enquiry.preferredLocations && enquiry.preferredLocations.length > 1 && (
+              <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded-full">
+                For: {enquiry.preferredLocations[submission.preferredLocationIndex ?? 0]?.address?.split(",")[0] || `Location ${(submission.preferredLocationIndex ?? 0) + 1}`}
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -180,10 +185,26 @@ const SubmissionPage = () => {
                 <span className="text-xs text-muted-foreground block uppercase tracking-wider">
                   Location
                 </span>
-                <div className="font-medium flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  {enquiry.address || "N/A"}
-                </div>
+                {enquiry.preferredLocations && enquiry.preferredLocations.length > 0 ? (
+                  <div className="space-y-1">
+                    {enquiry.preferredLocations.map((loc, i) => (
+                      <div key={i} className="font-medium flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        {loc.address}
+                        {enquiry.preferredLocations!.length > 1 && (
+                          <span className="text-[10px] text-muted-foreground bg-muted px-1.5 rounded">
+                            {i === 0 ? "Primary" : `#${i + 1}`}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="font-medium flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    {enquiry.address || "N/A"}
+                  </div>
+                )}
               </div>
 
               {enquiry.size && (
