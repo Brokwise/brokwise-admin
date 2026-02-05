@@ -39,11 +39,12 @@ const LoginPage = () => {
 
   const { mutate, isPending } = useMutation<
     ApiResponse<{
-      admin: {
+      user: {
         _id: string;
         name: string;
         email: string;
       };
+      userType: "admin" | "manager",
       token: string;
     }>,
     ApiError,
@@ -54,9 +55,10 @@ const LoginPage = () => {
     },
     onSuccess: ({ data }) => {
       toast.success("Login successful");
-      const { admin, token } = data;
-      if (admin && token) {
-        login(admin, token);
+      const { user, token } = data;
+      console.log(user, token)
+      if (user && token) {
+        login(user, token);
         router.push("/");
       } else {
         toast.error("Login failed");
