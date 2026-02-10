@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/select";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -146,11 +148,16 @@ export const columns: ColumnDef<Company>[] = [
 
 function StatusCell({ company }: { company: Company }) {
   const { updateMutation } = useCompanyStatusUpdate();
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "company:status");
 
   return (
     <Select
       defaultValue={company.status as CompanyStatus}
       value={company.status as CompanyStatus}
+      disabled={!canChangeStatus}
       onValueChange={(value: CompanyStatus) => {
         updateMutation({
           status: value as CompanyStatus,

@@ -14,6 +14,8 @@ import Link from "next/link";
 import { ArrowUpDown, ArrowRight, MapPin } from "lucide-react";
 import { useUpdatePropertyStatus } from "@/hooks/useProperty";
 import Image from "next/image";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-IN", {
@@ -231,11 +233,15 @@ export const columns: ColumnDef<Property>[] = [
 
 function StatusCell({ property }: { property: Property }) {
   const { mutate: updateStatus, isPending } = useUpdatePropertyStatus();
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "property:status");
 
   return (
     <Select
       defaultValue={property.listingStatus}
-      disabled={isPending}
+      disabled={isPending || !canChangeStatus}
       onValueChange={(value: ListingStatus) => {
         updateStatus({
           propertyId: property._id,

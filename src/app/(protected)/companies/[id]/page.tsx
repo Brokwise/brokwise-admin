@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 import { useBroker } from "@/hooks/useBroker";
 import { DataTable } from "../../_components/brokersData/brokers/data-table";
 import { columns } from "../../_components/brokersData/brokers/columns";
@@ -56,6 +58,11 @@ const CompanyDetailsPage = () => {
   const { company, isLoadingCompany } = useCompanyDetails(id);
   const { updateMutation } = useCompanyStatusUpdate();
   const { brokers, isLoadingBrokers } = useBroker();
+
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "company:status");
 
   const companyBrokers = brokers?.filter((broker) => broker.companyId === id);
 
@@ -122,6 +129,7 @@ const CompanyDetailsPage = () => {
                   <Select
                     defaultValue={company.status as CompanyStatus}
                     value={company.status as CompanyStatus}
+                    disabled={!canChangeStatus}
                     onValueChange={(value: CompanyStatus) => {
                       updateMutation({
                         status: value as CompanyStatus,
@@ -141,6 +149,11 @@ const CompanyDetailsPage = () => {
                       <SelectItem value="blacklisted">Blacklisted</SelectItem>
                     </SelectContent>
                   </Select>
+                  {!canChangeStatus && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      You don&apos;t have permission to perform this action.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

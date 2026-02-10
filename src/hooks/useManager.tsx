@@ -70,14 +70,18 @@ export const usePermissions = (enabled: boolean = true) => {
   return { permissions, isLoadingPermissions, errorPermissions };
 };
 
-export const useMyPermissions = () => {
+export const useMyPermissions = (
+  enabled: boolean = true,
+  cacheKey: string | null = null
+) => {
   const api = useAxios();
   return useQuery<MyPermissionsResponse>({
-    queryKey: ["my-permissions"],
+    queryKey: ["my-permissions", cacheKey],
     queryFn: async () => {
       const response = await api.get("/admin/manager/me/permissions");
       return response.data.data;
     },
+    enabled,
   });
 };
 

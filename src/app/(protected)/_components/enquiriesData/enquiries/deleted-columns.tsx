@@ -33,6 +33,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
+import { normalizeUserType } from "@/lib/permissions";
 
 const getStatusBadge = (status: string) => {
   const variants: Record<
@@ -68,6 +70,9 @@ const formatDate = (dateString: string) => {
 const DeletedCellAction = ({ enquiry }: { enquiry: Enquiry }) => {
   const [open, setOpen] = useState(false);
   const { mutate: restoreEnquiry, isPending } = useResortEnquiry(enquiry._id);
+  const rawUserType = useAuthStore((state) => state.userType);
+  const userType = normalizeUserType(rawUserType);
+  const isAdmin = userType === "admin";
 
   const onRestore = () => {
     restoreEnquiry(undefined, {
@@ -116,14 +121,18 @@ const DeletedCellAction = ({ enquiry }: { enquiry: Enquiry }) => {
             <Copy className="mr-2 h-4 w-4" />
             Copy Enquiry ID
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-            className="text-primary focus:text-primary"
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Restore Enquiry
-          </DropdownMenuItem>
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setOpen(true)}
+                className="text-primary focus:text-primary"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Restore Enquiry
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

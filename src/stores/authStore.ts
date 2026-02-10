@@ -20,6 +20,7 @@ interface AuthState {
   isAuthenticated: boolean;
   hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
+  setPermissions: (permissions: Permission[]) => void;
   login: (
     admin: AuthUser,
     token: string,
@@ -39,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       hasHydrated: false,
       setHasHydrated: (state) => set({ hasHydrated: state }),
+      setPermissions: (permissions) => set({ permissions }),
       login: (admin, token, userType, permissions = []) =>
         set({
           admin,

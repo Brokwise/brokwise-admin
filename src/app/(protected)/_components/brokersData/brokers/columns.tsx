@@ -12,6 +12,8 @@ import {
 import { ArrowUpDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "--";
@@ -212,11 +214,16 @@ export const columns: ColumnDef<Broker>[] = [
 
 function StatusCell({ broker }: { broker: Broker }) {
   const { updateMutation } = useBrokerStatusUpdate();
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "broker:status");
 
   return (
     <Select
       defaultValue={broker.status as BrokerStatus}
       value={broker.status as BrokerStatus}
+      disabled={!canChangeStatus}
       onValueChange={(value: BrokerStatus) => {
         updateMutation({
           status: value as BrokerStatus,

@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const getStatusBadge = (status: ListingStatus) => {
   const variants: Record<
@@ -125,6 +127,10 @@ const PropertyDetailsPage = () => {
   const { properties, isLoadingProperties } = useProperty();
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdatePropertyStatus();
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "property:status");
   const id = params.id as string;
 
   const property = properties?.find((p) => p._id === id);
@@ -452,6 +458,11 @@ const PropertyDetailsPage = () => {
                 </span>
                 {getStatusBadge(property.listingStatus)}
               </div>
+              {!canChangeStatus && (
+                <p className="text-xs text-muted-foreground">
+                  You don&apos;t have permission to perform this action.
+                </p>
+              )}
               {property.listingStatus !== "ENQUIRY_ONLY" && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Change Status</label>
@@ -459,7 +470,7 @@ const PropertyDetailsPage = () => {
                     <div className="flex w-full gap-2">
                       <Button
                         className="flex-1 bg-green-600 hover:bg-green-700"
-                        disabled={isUpdating}
+                        disabled={isUpdating || !canChangeStatus}
                         onClick={() =>
                           updateStatus({
                             propertyId: property._id,
@@ -472,7 +483,7 @@ const PropertyDetailsPage = () => {
                       <Button
                         className="flex-1"
                         variant="destructive"
-                        disabled={isUpdating}
+                        disabled={isUpdating || !canChangeStatus}
                         onClick={() =>
                           updateStatus({
                             propertyId: property._id,
@@ -486,7 +497,7 @@ const PropertyDetailsPage = () => {
                   ) : (
                     <Select
                       defaultValue={property.listingStatus}
-                      disabled={isUpdating}
+                      disabled={isUpdating || !canChangeStatus}
                       onValueChange={(value: ListingStatus) => {
                         updateStatus({
                           propertyId: property._id,

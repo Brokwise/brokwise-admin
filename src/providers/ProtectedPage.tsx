@@ -8,16 +8,32 @@ import {
   getFallbackPathForUser,
   normalizeUserType,
 } from "@/lib/permissions";
+import { useMyPermissions } from "@/hooks/useManager";
 
 const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const authUserId = useAuthStore((state) => state.admin?._id ?? null);
   const userType = useAuthStore((state) => state.userType);
   const permissions = useAuthStore((state) => state.permissions);
+  const setPermissions = useAuthStore((state) => state.setPermissions);
   const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
   const pathname = usePathname();
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+
+  const shouldRefreshPermissions =
+    isAuthenticated && hasHydrated && userType === "manager" && !!authUserId;
+  const {
+    data: myPermissionsData,
+    isFetched: isMyPermissionsFetched,
+  } = useMyPermissions(shouldRefreshPermissions, authUserId);
+
+  useEffect(() => {
+    if (myPermissionsData?.grantedPermissions) {
+      setPermissions(myPermissionsData.grantedPermissions);
+    }
+  }, [myPermissionsData, setPermissions]);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -34,8 +50,27 @@ const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    if (userType === "manager" && !authUserId) {
+      logout();
+      router.replace("/login");
+      return;
+    }
+
+    if (shouldRefreshPermissions && !isMyPermissionsFetched) {
+      return;
+    }
+
+    const effectivePermissions =
+      userType === "manager"
+        ? myPermissionsData?.grantedPermissions || permissions
+        : permissions;
+
     const normalizedUserType = normalizeUserType(userType);
-    const allowed = canAccessPath(pathname, normalizedUserType, permissions);
+    const allowed = canAccessPath(
+      pathname,
+      normalizedUserType,
+      effectivePermissions
+    );
 
     if (!allowed) {
       router.replace(getFallbackPathForUser());
@@ -44,12 +79,16 @@ const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
 
     setIsCheckingAccess(false);
   }, [
+    authUserId,
     hasHydrated,
     isAuthenticated,
+    isMyPermissionsFetched,
     logout,
+    myPermissionsData,
     pathname,
     permissions,
     router,
+    shouldRefreshPermissions,
     userType,
   ]);
 
