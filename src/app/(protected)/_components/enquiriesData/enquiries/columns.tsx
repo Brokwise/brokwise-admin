@@ -36,6 +36,8 @@ import {
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/stores/authStore";
+import { normalizeUserType } from "@/lib/permissions";
 
 const getStatusBadge = (status: string) => {
   const variants: Record<
@@ -73,6 +75,9 @@ const CellAction = ({ enquiry }: { enquiry: Enquiry }) => {
   const [open, setOpen] = useState(false);
   const { mutate: deleteEnquiry, isPending } = useDeleteEnquiry(enquiry._id);
   const [reason, setReason] = useState("");
+  const rawUserType = useAuthStore((state) => state.userType);
+  const userType = normalizeUserType(rawUserType);
+  const isAdmin = userType === "admin";
 
   const onDelete = () => {
     if (reason.length < 10) {
@@ -168,14 +173,18 @@ const CellAction = ({ enquiry }: { enquiry: Enquiry }) => {
             View Details
           </DropdownMenuItem>
           <DropdownMenuItem>View Matches</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Delete Enquiry
-          </DropdownMenuItem>
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setOpen(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                Delete Enquiry
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

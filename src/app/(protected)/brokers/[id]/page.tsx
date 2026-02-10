@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const getStatusBadge = (status: BrokerStatus) => {
   const variants: Record<
@@ -49,6 +51,11 @@ const BrokerDetailsPage = () => {
   const { brokers, isLoadingBrokers } = useBroker();
   const { updateMutation } = useBrokerStatusUpdate();
   const id = params.id as string;
+
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "broker:status");
 
   const broker = brokers?.find((b) => b._id === id);
 
@@ -124,6 +131,7 @@ const BrokerDetailsPage = () => {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
+                        disabled={!canChangeStatus}
                         onClick={() =>
                           updateMutation({
                             status: "approved",
@@ -136,6 +144,7 @@ const BrokerDetailsPage = () => {
                       <Button
                         size="sm"
                         variant="destructive"
+                        disabled={!canChangeStatus}
                         onClick={() =>
                           updateMutation({
                             status: "rejected",
@@ -151,6 +160,7 @@ const BrokerDetailsPage = () => {
                     <Button
                       size="sm"
                       variant="destructive"
+                      disabled={!canChangeStatus}
                       onClick={() =>
                         updateMutation({
                           status: "blacklisted",
@@ -165,6 +175,7 @@ const BrokerDetailsPage = () => {
                     broker.status === "blacklisted") && (
                       <Button
                         size="sm"
+                        disabled={!canChangeStatus}
                         onClick={() =>
                           updateMutation({
                             status: "approved",
@@ -175,6 +186,11 @@ const BrokerDetailsPage = () => {
                         Approve
                       </Button>
                     )}
+                  {!canChangeStatus && (
+                    <p className="text-xs text-muted-foreground">
+                      You don&apos;t have permission to perform this action.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

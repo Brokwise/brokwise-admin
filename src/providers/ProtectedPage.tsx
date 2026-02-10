@@ -8,16 +8,28 @@ import {
   getFallbackPathForUser,
   normalizeUserType,
 } from "@/lib/permissions";
+import { useMyPermissions } from "@/hooks/useManager";
 
 const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const userType = useAuthStore((state) => state.userType);
   const permissions = useAuthStore((state) => state.permissions);
+  const setPermissions = useAuthStore((state) => state.setPermissions);
   const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
   const pathname = usePathname();
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+
+  const shouldRefreshPermissions =
+    isAuthenticated && hasHydrated && userType === "manager";
+  const { data: myPermissionsData } = useMyPermissions(shouldRefreshPermissions);
+
+  useEffect(() => {
+    if (myPermissionsData?.grantedPermissions) {
+      setPermissions(myPermissionsData.grantedPermissions);
+    }
+  }, [myPermissionsData, setPermissions]);
 
   useEffect(() => {
     if (!hasHydrated) return;

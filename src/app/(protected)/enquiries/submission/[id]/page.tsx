@@ -44,6 +44,8 @@ import {
   useUpdateSubmissionStatus,
 } from "@/hooks/useEnquiry";
 import { useRouter, useParams } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
+import { hasPermission, normalizeUserType } from "@/lib/permissions";
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
@@ -61,6 +63,11 @@ const SubmissionPage = () => {
   const { data: submission, isLoading, error } = useGetSubmission(id as string);
   const { mutateAsync: updateStatus, isPending: isUpdating } =
     useUpdateSubmissionStatus();
+
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+  const canChangeStatus = hasPermission(userType, permissions, "enquiry:status");
 
   const [adminNote, setAdminNote] = useState("");
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -414,6 +421,7 @@ const SubmissionPage = () => {
               <CardContent className="flex flex-col gap-3">
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700"
+                  disabled={!canChangeStatus}
                   onClick={() => openConfirmDialog("approved")}
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -422,11 +430,17 @@ const SubmissionPage = () => {
                 <Button
                   variant="destructive"
                   className="w-full"
+                  disabled={!canChangeStatus}
                   onClick={() => openConfirmDialog("rejected")}
                 >
                   <XCircle className="mr-2 h-4 w-4" />
                   Reject
                 </Button>
+                {!canChangeStatus && (
+                  <p className="text-xs text-muted-foreground">
+                    You don&apos;t have permission to perform this action.
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}
