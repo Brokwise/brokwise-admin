@@ -40,9 +40,8 @@ export const columns: ColumnDef<Broker>[] = [
     },
     cell: ({ row }) => {
       const broker = row.original;
-      const fullName = `${broker.firstName || ""} ${
-        broker.lastName || ""
-      }`.trim();
+      const fullName = `${broker.firstName || ""} ${broker.lastName || ""
+        }`.trim();
       return (
         <div className="font-medium flex items-center gap-3">
           <Avatar className="h-12 w-12">
@@ -234,6 +233,7 @@ function StatusCell({ broker }: { broker: Broker }) {
         <SelectItem value="pending">Pending</SelectItem>
         <SelectItem value="incomplete">Incomplete</SelectItem>
         <SelectItem value="blacklisted">Blacklisted</SelectItem>
+        <SelectItem value="rejected">Rejected</SelectItem>
       </SelectContent>
     </Select>
   );

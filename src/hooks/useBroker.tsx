@@ -6,6 +6,7 @@ export type BrokerStatus =
   | "approved"
   | "pending"
   | "incomplete"
+  | "rejected"
   | "blacklisted";
 export interface Broker {
   firstName: string;

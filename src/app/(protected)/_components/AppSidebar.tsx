@@ -25,6 +25,7 @@ import {
   LandPlotIcon,
   Calendar,
   CircleDollarSign,
+  Users2Icon,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -189,7 +190,7 @@ const AppSidebar = () => {
             )}
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Enquiries">
+            <SidebarMenuButton asChild tooltip="Credits">
               <Link
                 href="/packs"
                 onClick={() => handleItemClick("enquiries")}
@@ -198,11 +199,18 @@ const AppSidebar = () => {
                 <span>Credit Packs</span>
               </Link>
             </SidebarMenuButton>
-            {getBadgeCount("enquiries") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("enquiries")}
-              </SidebarMenuBadge>
-            )}
+
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Managers">
+              <Link
+                href="/managers"
+                onClick={() => handleItemClick("managers")}
+              >
+                <Users2Icon />
+                <span>Managers</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="JDA Forms">

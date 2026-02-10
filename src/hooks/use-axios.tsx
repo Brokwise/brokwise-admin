@@ -20,9 +20,9 @@ const useAxios = () => {
         error.response &&
         (error.response.status === 401 || error.response.status === 403)
       ) {
-        useAuthStore.getState().logout();
+        // useAuthStore.getState().logout();
         toast.error("Session expired, please login again");
-        router.push("/login");
+        // router.push("/login");
       }
       return Promise.reject(error);
     }

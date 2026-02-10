@@ -7,6 +7,7 @@ export interface PendingItems {
   developers: number;
   properties: number;
   enquiries: number;
+  managers: number
 }
 
 export const usePendingItems = () => {

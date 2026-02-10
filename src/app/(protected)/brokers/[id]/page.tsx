@@ -9,13 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
 const getStatusBadge = (status: BrokerStatus) => {
@@ -30,6 +23,7 @@ const getStatusBadge = (status: BrokerStatus) => {
     pending: { variant: "secondary", label: "Pending" },
     incomplete: { variant: "outline", label: "Incomplete" },
     blacklisted: { variant: "destructive", label: "Blacklisted" },
+    rejected: { variant: "destructive", label: "Rejected" },
   };
 
   const config = variants[status];
@@ -110,13 +104,13 @@ const BrokerDetailsPage = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Company
                 </p>
-                <p>{broker.companyName}</p>
+                <p>{broker.companyName || "NA"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Broker ID
                 </p>
-                <p className="font-mono">{broker.brokerId}</p>
+                <p className="font-mono">{broker.brokerId || "NA"}</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -126,28 +120,61 @@ const BrokerDetailsPage = () => {
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   {getStatusBadge(broker.status)}
-                  <Select
-                    defaultValue={broker.status as BrokerStatus}
-                    value={broker.status as BrokerStatus}
-                    onValueChange={(value: BrokerStatus) => {
-                      updateMutation({
-                        status: value as BrokerStatus,
-                        _id: broker._id,
-                      });
-                      // Optimistically update not possible easily here without query invalidation or state update,
-                      // but the mutation hook might handle it or we rely on refetch.
-                    }}
-                  >
-                    <SelectTrigger className="w-[140px] h-8">
-                      <SelectValue placeholder="Change Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="incomplete">Incomplete</SelectItem>
-                      <SelectItem value="blacklisted">Blacklisted</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {broker.status === "pending" && (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          updateMutation({
+                            status: "approved",
+                            _id: broker._id,
+                          })
+                        }
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          updateMutation({
+                            status: "rejected",
+                            _id: broker._id,
+                          })
+                        }
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                  {broker.status === "approved" && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() =>
+                        updateMutation({
+                          status: "blacklisted",
+                          _id: broker._id,
+                        })
+                      }
+                    >
+                      Blacklist
+                    </Button>
+                  )}
+                  {(broker.status === "rejected" ||
+                    broker.status === "blacklisted") && (
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          updateMutation({
+                            status: "approved",
+                            _id: broker._id,
+                          })
+                        }
+                      >
+                        Approve
+                      </Button>
+                    )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -168,19 +195,19 @@ const BrokerDetailsPage = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   RERA Number
                 </p>
-                <p className="font-mono">{broker.reraNumber}</p>
+                <p className="font-mono">{broker.reraNumber || "-"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   GSTIN
                 </p>
-                <p className="font-mono">{broker.gstin}</p>
+                <p className="font-mono">{broker.gstin || "-"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Office Address
                 </p>
-                <p>{broker.officeAddress}</p>
+                <p>{broker.officeAddress || "NA"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
