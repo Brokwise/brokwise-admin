@@ -53,7 +53,7 @@ export const useManagerById = (managerId: string) => {
 };
 
 // Fetch available permissions
-export const usePermissions = () => {
+export const usePermissions = (enabled: boolean = true) => {
   const api = useAxios();
   const {
     data: permissions,
@@ -65,6 +65,7 @@ export const usePermissions = () => {
       const response = await api.get("/admin/manager/permissions");
       return response.data.data;
     },
+    enabled,
   });
   return { permissions, isLoadingPermissions, errorPermissions };
 };

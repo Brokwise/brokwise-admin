@@ -29,7 +29,7 @@ const PermissionsPage = () => {
 
   const { managers, isLoadingManagers, errorManagers } = useManagers(true, isAdmin);
   const { permissions: availablePermissions, isLoadingPermissions } =
-    usePermissions();
+    usePermissions(isAdmin);
   const {
     data: myPermissions,
     isLoading: isLoadingMyPermissions,
