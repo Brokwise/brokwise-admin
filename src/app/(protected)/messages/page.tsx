@@ -45,12 +45,34 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  hasAnyPermission,
+  hasPermission,
+  normalizeUserType,
+} from "@/lib/permissions";
 
 export default function MessagesPage() {
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+
+  const canReadMessages = hasAnyPermission(userType, permissions, [
+    "message:read",
+    "message:interact",
+  ]);
+  const canInteractMessages = hasPermission(
+    userType,
+    permissions,
+    "message:interact"
+  );
+  const canReadBrokers = hasPermission(userType, permissions, "broker:read");
+  const canStartConversation = canInteractMessages && canReadBrokers;
+
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
-  const { brokers } = useBroker();
+  const { brokers } = useBroker(canStartConversation);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [brokerSearchQuery, setBrokerSearchQuery] = useState("");
@@ -59,9 +81,9 @@ export default function MessagesPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: conversations, isLoading: isLoadingConversations } =
-    useGetConversations();
+    useGetConversations(1, 10, canReadMessages);
   const { data: conversationDetails, isLoading: isLoadingMessages } =
-    useGetConversationDetails(selectedConversationId!, 1, 100);
+    useGetConversationDetails(selectedConversationId!, 1, 100, canReadMessages);
   const { mutate } = useCreateConversation();
   const sendMessageMutation = useSendMessage();
 
@@ -74,6 +96,8 @@ export default function MessagesPage() {
   }, [conversationDetails?.messages, selectedConversationId]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!canInteractMessages) return;
+
     const file = e.target.files?.[0];
     if (!file || !selectedConversationId) return;
 
@@ -118,6 +142,7 @@ export default function MessagesPage() {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canInteractMessages) return;
     if (!messageInput.trim() || !selectedConversationId) return;
 
     sendMessageMutation.mutate(
@@ -153,6 +178,7 @@ export default function MessagesPage() {
     return name.charAt(0).toUpperCase();
   };
   const handleStartConversation = async (brokerId: string) => {
+    if (!canStartConversation) return;
     mutate({ participantId: brokerId, participantType: "Broker" });
     // Ideally we would select the conversation after creation,
     // but the API might not return it immediately or we'd need to refetch.
@@ -178,61 +204,69 @@ export default function MessagesPage() {
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold tracking-tight">Messages</h2>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Plus className="h-5 w-5" />
-                  <span className="sr-only">New message</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>New Conversation</DialogTitle>
-                  <DialogDescription>
-                    Start a new conversation with a broker.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-2">
-                  <Input
-                    placeholder="Search brokers..."
-                    value={brokerSearchQuery}
-                    onChange={(e) => setBrokerSearchQuery(e.target.value)}
-                  />
-                </div>
-                <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
-                  {filteredBrokers?.map((b) => (
-                    <div
-                      key={b._id}
-                      className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {b.firstName?.charAt(0) || "B"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-0.5">
-                          <p className="text-sm font-medium leading-none">
-                            {b.firstName} {b.lastName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {b.email}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleStartConversation(b._id)}
+            {canStartConversation && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Plus className="h-5 w-5" />
+                    <span className="sr-only">New message</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>New Conversation</DialogTitle>
+                    <DialogDescription>
+                      Start a new conversation with a broker.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-2">
+                    <Input
+                      placeholder="Search brokers..."
+                      value={brokerSearchQuery}
+                      onChange={(e) => setBrokerSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
+                    {filteredBrokers?.map((b) => (
+                      <div
+                        key={b._id}
+                        className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
                       >
-                        Chat
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </DialogContent>
-            </Dialog>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              {b.firstName?.charAt(0) || "B"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="grid gap-0.5">
+                            <p className="text-sm font-medium leading-none">
+                              {b.firstName} {b.lastName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {b.email}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleStartConversation(b._id)}
+                        >
+                          Chat
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
+          {!canStartConversation && canReadMessages && (
+            <p className="text-xs text-muted-foreground">
+              You can view messages. Ask an admin for message interaction and
+              broker view permissions to start new conversations.
+            </p>
+          )}
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -381,7 +415,9 @@ export default function MessagesPage() {
                     .slice()
                     .reverse()
                     .map((message) => {
-                      const isMe = message.senderType === "Admin";
+                      const mySenderType =
+                        userType === "manager" ? "Manager" : "Admin";
+                      const isMe = message.senderType === mySenderType;
                       // Check if previous message was from same sender to group them visually (optional enhancement)
                       // const isSequence = index > 0 && arr[index - 1].senderType === message.senderType;
 
@@ -449,73 +485,80 @@ export default function MessagesPage() {
 
             {/* Input Area */}
             <div className="p-4 bg-background border-t">
-              <form
-                onSubmit={handleSendMessage}
-                className="flex items-end gap-2 max-w-4xl mx-auto"
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                />
-
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="shrink-0 text-muted-foreground hover:text-foreground"
-                        disabled={sendMessageMutation.isPending || isUploading}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        {isUploading ? (
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                        ) : (
-                          <ImageIcon className="h-5 w-5" />
-                        )}
-                        <span className="sr-only">Attach file</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Attach image</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                <div className="relative flex-1">
-                  <Input
-                    placeholder="Type your message..."
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    disabled={sendMessageMutation.isPending || isUploading}
-                    className="pr-12 min-h-[44px] py-3 rounded-full bg-muted/30 border-muted-foreground/20 focus-visible:ring-offset-0"
+              {canInteractMessages ? (
+                <form
+                  onSubmit={handleSendMessage}
+                  className="flex items-end gap-2 max-w-4xl mx-auto"
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileSelect}
                   />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    disabled={
-                      sendMessageMutation.isPending ||
-                      !messageInput.trim() ||
-                      isUploading
-                    }
-                    className={cn(
-                      "absolute right-1 top-1 h-9 w-9 rounded-full transition-all",
-                      messageInput.trim()
-                        ? "opacity-100 scale-100"
-                        : "opacity-0 scale-90"
-                    )}
-                  >
-                    {sendMessageMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                    <span className="sr-only">Send</span>
-                  </Button>
-                </div>
-              </form>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0 text-muted-foreground hover:text-foreground"
+                          disabled={sendMessageMutation.isPending || isUploading}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          {isUploading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <ImageIcon className="h-5 w-5" />
+                          )}
+                          <span className="sr-only">Attach file</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Attach image</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Type your message..."
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      disabled={sendMessageMutation.isPending || isUploading}
+                      className="pr-12 min-h-[44px] py-3 rounded-full bg-muted/30 border-muted-foreground/20 focus-visible:ring-offset-0"
+                    />
+                    <Button
+                      type="submit"
+                      size="icon"
+                      disabled={
+                        sendMessageMutation.isPending ||
+                        !messageInput.trim() ||
+                        isUploading
+                      }
+                      className={cn(
+                        "absolute right-1 top-1 h-9 w-9 rounded-full transition-all",
+                        messageInput.trim()
+                          ? "opacity-100 scale-100"
+                          : "opacity-0 scale-90"
+                      )}
+                    >
+                      {sendMessageMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                      <span className="sr-only">Send</span>
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <p className="text-sm text-center text-muted-foreground">
+                  Read-only access. Ask an admin for message interaction
+                  permission to reply.
+                </p>
+              )}
             </div>
           </>
         ) : (
@@ -530,58 +573,60 @@ export default function MessagesPage() {
               Choose a conversation from the sidebar or start a new one to begin
               chatting.
             </p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="mt-6">Start New Conversation</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>New Conversation</DialogTitle>
-                  <DialogDescription>
-                    Select a broker to chat with
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-2">
-                  <Input
-                    placeholder="Search brokers..."
-                    value={brokerSearchQuery}
-                    onChange={(e) => setBrokerSearchQuery(e.target.value)}
-                  />
-                </div>
-                {/* Reusing the broker list logic or extracting it would be better, but duplication for now is safe */}
-                <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
-                  {filteredBrokers?.map((b) => (
-                    <div
-                      key={b._id}
-                      className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {b.firstName?.charAt(0) || "B"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="grid gap-0.5">
-                          <p className="text-sm font-medium leading-none">
-                            {b.firstName} {b.lastName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {b.email}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleStartConversation(b._id)}
+            {canStartConversation && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="mt-6">Start New Conversation</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>New Conversation</DialogTitle>
+                    <DialogDescription>
+                      Select a broker to chat with
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-2">
+                    <Input
+                      placeholder="Search brokers..."
+                      value={brokerSearchQuery}
+                      onChange={(e) => setBrokerSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  {/* Reusing the broker list logic or extracting it would be better, but duplication for now is safe */}
+                  <div className="mt-2 max-h-[300px] overflow-y-auto space-y-2">
+                    {filteredBrokers?.map((b) => (
+                      <div
+                        key={b._id}
+                        className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-lg transition-colors"
                       >
-                        Chat
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </DialogContent>
-            </Dialog>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              {b.firstName?.charAt(0) || "B"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="grid gap-0.5">
+                            <p className="text-sm font-medium leading-none">
+                              {b.firstName} {b.lastName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {b.email}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleStartConversation(b._id)}
+                        >
+                          Chat
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         )}
       </div>
