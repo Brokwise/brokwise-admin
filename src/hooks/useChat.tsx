@@ -9,7 +9,11 @@ import {
 } from "@/types/chat";
 import { toast } from "sonner";
 
-export const useGetConversations = (page = 1, limit = 10) => {
+export const useGetConversations = (
+  page = 1,
+  limit = 10,
+  enabled: boolean = true
+) => {
   const api = useAxios();
   return useQuery<Conversation[]>({
     queryKey: ["conversations", page, limit],
@@ -19,13 +23,15 @@ export const useGetConversations = (page = 1, limit = 10) => {
       );
       return response.data.data;
     },
+    enabled,
   });
 };
 
 export const useGetConversationDetails = (
   conversationId: string,
   page = 1,
-  limit = 50
+  limit = 50,
+  enabled: boolean = true
 ) => {
   const api = useAxios();
   return useQuery<ConversationDetails>({
@@ -36,7 +42,7 @@ export const useGetConversationDetails = (
       );
       return response.data.data;
     },
-    enabled: !!conversationId,
+    enabled: !!conversationId && enabled,
   });
 };
 

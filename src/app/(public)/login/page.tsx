@@ -8,6 +8,7 @@ import useAxios, { ApiError, ApiResponse } from "@/hooks/use-axios";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
+import type { Permission } from "@/types/manager";
 import { Quote, ArrowRight, ShieldCheck } from "lucide-react";
 import {
   Form,
@@ -41,10 +42,13 @@ const LoginPage = () => {
     ApiResponse<{
       user: {
         _id: string;
-        name: string;
+        name?: string;
+        first_name?: string;
+        last_name?: string;
         email: string;
       };
-      userType: "admin" | "manager",
+      userType: "admin" | "manager";
+      permissions?: Permission[];
       token: string;
     }>,
     ApiError,
@@ -55,10 +59,9 @@ const LoginPage = () => {
     },
     onSuccess: ({ data }) => {
       toast.success("Login successful");
-      const { user, token } = data;
-      console.log(user, token)
+      const { user, token, userType, permissions } = data;
       if (user && token) {
-        login(user, token);
+        login(user, token, userType, permissions || []);
         router.push("/");
       } else {
         toast.error("Login failed");

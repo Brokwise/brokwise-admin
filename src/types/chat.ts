@@ -11,7 +11,7 @@ export interface Message {
   isDeleted: boolean;
   conversationId: string;
   senderId: string;
-  senderType: "Admin" | "Broker" | "Company";
+  senderType: "Admin" | "Manager" | "Broker" | "Company";
   createdAt: string;
   updatedAt: string;
 }

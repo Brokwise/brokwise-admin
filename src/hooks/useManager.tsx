@@ -7,11 +7,15 @@ import {
   UpdateManagerDTO,
   UpdateManagerPermissionsDTO,
   ResetManagerPasswordDTO,
-  Permission,
+  PermissionDefinition,
+  MyPermissionsResponse,
 } from "@/types/manager";
 
 // Fetch all managers
-export const useManagers = (includeInactive: boolean = false) => {
+export const useManagers = (
+  includeInactive: boolean = false,
+  enabled: boolean = true
+) => {
   const api = useAxios();
   const {
     data: managers,
@@ -25,6 +29,7 @@ export const useManagers = (includeInactive: boolean = false) => {
       });
       return response.data.data;
     },
+    enabled,
   });
   return { managers, isLoadingManagers, errorManagers };
 };
@@ -48,20 +53,32 @@ export const useManagerById = (managerId: string) => {
 };
 
 // Fetch available permissions
-export const usePermissions = () => {
+export const usePermissions = (enabled: boolean = true) => {
   const api = useAxios();
   const {
     data: permissions,
     isLoading: isLoadingPermissions,
     error: errorPermissions,
-  } = useQuery<Permission[]>({
+  } = useQuery<PermissionDefinition[]>({
     queryKey: ["permissions"],
     queryFn: async () => {
       const response = await api.get("/admin/manager/permissions");
       return response.data.data;
     },
+    enabled,
   });
   return { permissions, isLoadingPermissions, errorPermissions };
+};
+
+export const useMyPermissions = () => {
+  const api = useAxios();
+  return useQuery<MyPermissionsResponse>({
+    queryKey: ["my-permissions"],
+    queryFn: async () => {
+      const response = await api.get("/admin/manager/me/permissions");
+      return response.data.data;
+    },
+  });
 };
 
 // Create manager mutation

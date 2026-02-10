@@ -1,26 +1,59 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import {
+  canAccessPath,
+  getFallbackPathForUser,
+  normalizeUserType,
+} from "@/lib/permissions";
 
 const ProtectedPage = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const userType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
-  const [shouldRender, setShouldRender] = useState(false);
+  const pathname = usePathname();
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   useEffect(() => {
-    if (hasHydrated) {
-      if (!isAuthenticated) {
-        router.push("/login");
-      } else {
-        setShouldRender(true);
-      }
-    }
-  }, [hasHydrated, isAuthenticated, router]);
+    if (!hasHydrated) return;
+    setIsCheckingAccess(true);
 
-  if (!hasHydrated || !shouldRender) {
+    if (!isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+
+    if (!userType) {
+      logout();
+      router.replace("/login");
+      return;
+    }
+
+    const normalizedUserType = normalizeUserType(userType);
+    const allowed = canAccessPath(pathname, normalizedUserType, permissions);
+
+    if (!allowed) {
+      router.replace(getFallbackPathForUser());
+      return;
+    }
+
+    setIsCheckingAccess(false);
+  }, [
+    hasHydrated,
+    isAuthenticated,
+    logout,
+    pathname,
+    permissions,
+    router,
+    userType,
+  ]);
+
+  if (!hasHydrated || !isAuthenticated || isCheckingAccess) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">

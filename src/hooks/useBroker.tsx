@@ -27,7 +27,7 @@ export interface Broker {
   brokerId: string;
   profilePhoto?: string;
 }
-export const useBroker = () => {
+export const useBroker = (enabled: boolean = true) => {
   const api = useAxios();
   const {
     data: brokers,
@@ -36,6 +36,7 @@ export const useBroker = () => {
   } = useQuery<Broker[]>({
     queryKey: ["brokers"],
     queryFn: async () => (await api.get("/admin/getBrokers")).data.data,
+    enabled,
   });
   return { brokers, isLoadingBrokers, errorBrokers };
 };

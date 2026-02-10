@@ -8,7 +8,8 @@ export const VALID_PERMISSIONS = [
   "property:status",
   "enquiry:read",
   "enquiry:status",
-  "enquiry:forward",
+  "message:read",
+  "message:interact",
 ] as const;
 
 export type Permission = (typeof VALID_PERMISSIONS)[number];
@@ -52,6 +53,24 @@ export interface ResetManagerPasswordDTO {
   newPassword: string;
 }
 
+export interface PermissionDefinition {
+  value: Permission;
+  label: string;
+  resource: string;
+  action: string;
+}
+
+export interface PermissionWithGrant extends PermissionDefinition {
+  granted: boolean;
+}
+
+export interface MyPermissionsResponse {
+  userType: "admin" | "manager";
+  isAllAccess: boolean;
+  grantedPermissions: Permission[];
+  allPermissions: PermissionWithGrant[];
+}
+
 // Permission labels for UI display
 export const PERMISSION_LABELS: Record<Permission, string> = {
   "broker:read": "View Brokers",
@@ -63,7 +82,8 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   "property:status": "Change Property Status",
   "enquiry:read": "View Enquiries",
   "enquiry:status": "Change Enquiry Status",
-  "enquiry:forward": "Forward Enquiries",
+  "message:read": "View Messages",
+  "message:interact": "Interact With Messages",
 };
 
 // Group permissions by category for better UX
@@ -71,5 +91,6 @@ export const PERMISSION_GROUPS = {
   Brokers: ["broker:read", "broker:update", "broker:status"] as Permission[],
   Companies: ["company:read", "company:status"] as Permission[],
   Properties: ["property:read", "property:status"] as Permission[],
-  Enquiries: ["enquiry:read", "enquiry:status", "enquiry:forward"] as Permission[],
+  Enquiries: ["enquiry:read", "enquiry:status"] as Permission[],
+  Messages: ["message:read", "message:interact"] as Permission[],
 };

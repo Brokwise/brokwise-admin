@@ -26,19 +26,43 @@ import {
   Calendar,
   CircleDollarSign,
   Users2Icon,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useTheme } from "next-themes";
 import { usePendingItems, PendingItems } from "@/hooks/usePendingItems";
+import {
+  hasAnyPermission,
+  hasPermission,
+  normalizeUserType,
+} from "@/lib/permissions";
 
 const STORAGE_KEY = "brokwise_admin_seen_counts";
 
 const AppSidebar = () => {
   const logout = useAuthStore((state) => state.logout);
+  const rawUserType = useAuthStore((state) => state.userType);
+  const permissions = useAuthStore((state) => state.permissions);
+  const userType = normalizeUserType(rawUserType);
+
   const { theme, setTheme } = useTheme();
   const { pendingItems } = usePendingItems();
+
+  const canSeeBrokers = hasPermission(userType, permissions, "broker:read");
+  const canSeeCompanies = hasPermission(userType, permissions, "company:read");
+  const canSeeProperties = hasPermission(
+    userType,
+    permissions,
+    "property:read"
+  );
+  const canSeeEnquiries = hasPermission(userType, permissions, "enquiry:read");
+  const canSeeMessages = hasAnyPermission(userType, permissions, [
+    "message:read",
+    "message:interact",
+  ]);
+  const isAdmin = userType === "admin";
 
   const [seenCounts, setSeenCounts] = useState<Record<string, number>>({});
   const [isLoaded, setIsLoaded] = useState(false);
@@ -128,138 +152,164 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {canSeeBrokers && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Brokers">
+                <Link href="/brokers" onClick={() => handleItemClick("brokers")}>
+                  <Users />
+                  <span>Brokers</span>
+                </Link>
+              </SidebarMenuButton>
+              {getBadgeCount("brokers") > 0 && (
+                <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                  {getBadgeCount("brokers")}
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          )}
+          {canSeeCompanies && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Companies">
+                <Link
+                  href="/companies"
+                  onClick={() => handleItemClick("companies")}
+                >
+                  <Briefcase />
+                  <span>Companies</span>
+                </Link>
+              </SidebarMenuButton>
+              {getBadgeCount("companies") > 0 && (
+                <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                  {getBadgeCount("companies")}
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          )}
+          {canSeeProperties && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Properties">
+                <Link
+                  href="/properties"
+                  onClick={() => handleItemClick("properties")}
+                >
+                  <Building2 />
+                  <span>Properties</span>
+                </Link>
+              </SidebarMenuButton>
+              {getBadgeCount("properties") > 0 && (
+                <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                  {getBadgeCount("properties")}
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          )}
+          {canSeeEnquiries && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Enquiries">
+                <Link
+                  href="/enquiries"
+                  onClick={() => handleItemClick("enquiries")}
+                >
+                  <MessageCircle />
+                  <span>Enquiries</span>
+                </Link>
+              </SidebarMenuButton>
+              {getBadgeCount("enquiries") > 0 && (
+                <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                  {getBadgeCount("enquiries")}
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Credits">
+                <Link href="/packs">
+                  <CircleDollarSign />
+                  <span>Credit Packs</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Managers">
+                <Link
+                  href="/managers"
+                  onClick={() => handleItemClick("managers")}
+                >
+                  <Users2Icon />
+                  <span>Managers</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Brokers">
-              <Link href="/brokers" onClick={() => handleItemClick("brokers")}>
-                <Users />
-                <span>Brokers</span>
-              </Link>
-            </SidebarMenuButton>
-            {getBadgeCount("brokers") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("brokers")}
-              </SidebarMenuBadge>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Companies">
-              <Link
-                href="/companies"
-                onClick={() => handleItemClick("companies")}
-              >
-                <Briefcase />
-                <span>Companies</span>
-              </Link>
-            </SidebarMenuButton>
-            {getBadgeCount("companies") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("companies")}
-              </SidebarMenuBadge>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Properties">
-              <Link
-                href="/properties"
-                onClick={() => handleItemClick("properties")}
-              >
-                <Building2 />
-                <span>Properties</span>
-              </Link>
-            </SidebarMenuButton>
-            {getBadgeCount("properties") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("properties")}
-              </SidebarMenuBadge>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Enquiries">
-              <Link
-                href="/enquiries"
-                onClick={() => handleItemClick("enquiries")}
-              >
-                <MessageCircle />
-                <span>Enquiries</span>
-              </Link>
-            </SidebarMenuButton>
-            {getBadgeCount("enquiries") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("enquiries")}
-              </SidebarMenuBadge>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Credits">
-              <Link
-                href="/packs"
-                onClick={() => handleItemClick("enquiries")}
-              >
-                <CircleDollarSign />
-                <span>Credit Packs</span>
-              </Link>
-            </SidebarMenuButton>
-
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Managers">
-              <Link
-                href="/managers"
-                onClick={() => handleItemClick("managers")}
-              >
-                <Users2Icon />
-                <span>Managers</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="JDA Forms">
-              <Link href="/jda-forms">
-                <File />
-                <span>JDA Forms</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Messages">
-              <Link href="/messages">
-                <MessageCircleMore />
-                <span>Messages</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Developers">
-              <Link
-                href="/developers"
-                onClick={() => handleItemClick("developers")}
-              >
-                <UserStarIcon />
-                <span>Developers</span>
-              </Link>
-            </SidebarMenuButton>
-            {getBadgeCount("developers") > 0 && (
-              <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
-                {getBadgeCount("developers")}
-              </SidebarMenuBadge>
-            )}
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Projects">
-              <Link href="/projects">
-                <LandPlotIcon />
-                <span>Projects</span>
+            <SidebarMenuButton asChild tooltip="Permissions">
+              <Link href="/permissions">
+                <ShieldCheck />
+                <span>Permissions</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Calendar">
-              <Link href="/calendar">
-                <Calendar />
-                <span>Calendar</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="JDA Forms">
+                <Link href="/jda-forms">
+                  <File />
+                  <span>JDA Forms</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {canSeeMessages && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Messages">
+                <Link href="/messages">
+                  <MessageCircleMore />
+                  <span>Messages</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Developers">
+                <Link
+                  href="/developers"
+                  onClick={() => handleItemClick("developers")}
+                >
+                  <UserStarIcon />
+                  <span>Developers</span>
+                </Link>
+              </SidebarMenuButton>
+              {getBadgeCount("developers") > 0 && (
+                <SidebarMenuBadge className="rounded-full bg-red-500 text-white">
+                  {getBadgeCount("developers")}
+                </SidebarMenuBadge>
+              )}
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Projects">
+                <Link href="/projects">
+                  <LandPlotIcon />
+                  <span>Projects</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Calendar">
+                <Link href="/calendar">
+                  <Calendar />
+                  <span>Calendar</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {/* <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <Link href="/settings">
