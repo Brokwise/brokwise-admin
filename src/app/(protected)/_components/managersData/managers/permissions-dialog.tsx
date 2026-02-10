@@ -88,7 +88,7 @@ export function PermissionsDialog({
     if (allSelected) {
       return currentPermissions.filter((p) => !groupPermissions.includes(p));
     }
-    return [...new Set([...currentPermissions, ...groupPermissions])];
+    return Array.from(new Set([...currentPermissions, ...groupPermissions]));
   };
 
   const selectAllPermissions = (currentPermissions: Permission[]) => {
