@@ -9,6 +9,7 @@ type RouteRule = {
 };
 
 const MANAGER_ROUTE_RULES: RouteRule[] = [
+  { basePath: "/permissions" },
   { basePath: "/brokers", requiredAny: ["broker:read"] },
   { basePath: "/companies", requiredAny: ["company:read"] },
   { basePath: "/properties", requiredAny: ["property:read"] },

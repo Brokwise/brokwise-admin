@@ -26,6 +26,7 @@ import {
   Calendar,
   CircleDollarSign,
   Users2Icon,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -243,6 +244,14 @@ const AppSidebar = () => {
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Permissions">
+              <Link href="/permissions">
+                <ShieldCheck />
+                <span>Permissions</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {isAdmin && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="JDA Forms">

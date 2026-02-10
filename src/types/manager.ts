@@ -53,6 +53,24 @@ export interface ResetManagerPasswordDTO {
   newPassword: string;
 }
 
+export interface PermissionDefinition {
+  value: Permission;
+  label: string;
+  resource: string;
+  action: string;
+}
+
+export interface PermissionWithGrant extends PermissionDefinition {
+  granted: boolean;
+}
+
+export interface MyPermissionsResponse {
+  userType: "admin" | "manager";
+  isAllAccess: boolean;
+  grantedPermissions: Permission[];
+  allPermissions: PermissionWithGrant[];
+}
+
 // Permission labels for UI display
 export const PERMISSION_LABELS: Record<Permission, string> = {
   "broker:read": "View Brokers",
