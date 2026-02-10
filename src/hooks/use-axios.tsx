@@ -1,9 +1,7 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 const useAxios = () => {
-  const router = useRouter();
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
