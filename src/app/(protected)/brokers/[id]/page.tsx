@@ -125,7 +125,7 @@ const BrokerDetailsPage = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Status
                 </p>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex flex-wrap items-center gap-2 mt-1">
                   {getStatusBadge(broker.status)}
                   {broker.status === "pending" && (
                     <div className="flex gap-2">
@@ -186,12 +186,12 @@ const BrokerDetailsPage = () => {
                         Approve
                       </Button>
                     )}
-                  {!canChangeStatus && (
-                    <p className="text-xs text-muted-foreground">
-                      You don&apos;t have permission to perform this action.
-                    </p>
-                  )}
                 </div>
+                {!canChangeStatus && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    You don&apos;t have permission to perform this action.
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
