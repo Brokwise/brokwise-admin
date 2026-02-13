@@ -27,6 +27,7 @@ import {
   CircleDollarSign,
   Users2Icon,
   ShieldCheck,
+  LibraryBig,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -61,6 +62,11 @@ const AppSidebar = () => {
   const canSeeMessages = hasAnyPermission(userType, permissions, [
     "message:read",
     "message:interact",
+  ]);
+  const canSeeResourcesCms = hasAnyPermission(userType, permissions, [
+    "resource:read",
+    "resource:update",
+    "resource:publish",
   ]);
   const isAdmin = userType === "admin";
 
@@ -252,6 +258,16 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {canSeeResourcesCms && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Resources CMS">
+                <Link href="/resources-cms">
+                  <LibraryBig />
+                  <span>Resources CMS</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {isAdmin && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="JDA Forms">

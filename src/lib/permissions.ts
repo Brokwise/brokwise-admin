@@ -23,6 +23,7 @@ const MANAGER_ROUTE_RULES: RouteRule[] = [
   { basePath: "/projects", adminOnly: true },
   { basePath: "/packs", adminOnly: true },
   { basePath: "/jda-forms", adminOnly: true },
+  { basePath: "/resources-cms", requiredAny: ["resource:read"] },
   { basePath: "/calendar", adminOnly: true },
   { basePath: "/notifications", adminOnly: true },
 ];
