@@ -10,6 +10,9 @@ export const VALID_PERMISSIONS = [
   "enquiry:status",
   "message:read",
   "message:interact",
+  "resource:read",
+  "resource:update",
+  "resource:publish",
 ] as const;
 
 export type Permission = (typeof VALID_PERMISSIONS)[number];
@@ -84,6 +87,9 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   "enquiry:status": "Change Enquiry Status",
   "message:read": "View Messages",
   "message:interact": "Interact With Messages",
+  "resource:read": "View Resources CMS",
+  "resource:update": "Manage Resources Content",
+  "resource:publish": "Publish Resources Content",
 };
 
 // Group permissions by category for better UX
@@ -93,4 +99,5 @@ export const PERMISSION_GROUPS = {
   Properties: ["property:read", "property:status"] as Permission[],
   Enquiries: ["enquiry:read", "enquiry:status"] as Permission[],
   Messages: ["message:read", "message:interact"] as Permission[],
+  Resources: ["resource:read", "resource:update", "resource:publish"] as Permission[],
 };
