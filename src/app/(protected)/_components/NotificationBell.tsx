@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Users, Building2, MessageCircle, CreditCard, Calendar } from "lucide-react";
+import {
+  Bell,
+  Users,
+  Building2,
+  MessageCircle,
+  CreditCard,
+  Calendar,
+  MessageSquare,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -18,6 +26,7 @@ import {
 } from "@/hooks/useAdminNotifications";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { resolveAdminNotificationRoute } from "@/lib/adminNotificationRoute";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   USER_MANAGEMENT: <Users className="h-4 w-4 text-blue-500" />,
@@ -25,6 +34,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
   ENQUIRY: <MessageCircle className="h-4 w-4 text-orange-500" />,
   PAYMENT: <CreditCard className="h-4 w-4 text-purple-500" />,
   BOOKING: <Calendar className="h-4 w-4 text-teal-500" />,
+  MESSAGING: <MessageSquare className="h-4 w-4 text-indigo-500" />,
 };
 
 const NotificationBell = () => {
@@ -39,8 +49,9 @@ const NotificationBell = () => {
     if (!notification.read) {
       markRead.mutate(notification._id);
     }
-    if (notification.actionUrl) {
-      router.push(notification.actionUrl);
+    const targetRoute = resolveAdminNotificationRoute(notification);
+    if (targetRoute) {
+      router.push(targetRoute);
     }
     setOpen(false);
   };
@@ -92,7 +103,7 @@ const NotificationBell = () => {
                   >
                     {notification.title}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground whitespace-normal break-words">
                     {notification.description}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
