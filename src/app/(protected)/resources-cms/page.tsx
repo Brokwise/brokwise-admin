@@ -683,7 +683,15 @@ const ResourcesCMSPage = () => {
                             <Button
                               size="icon"
                               variant="ghost"
-                              onClick={() => deleteState.mutate(state._id)}
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `Deactivate state "${state.name}"? This will archive latest state resources.`
+                                  )
+                                ) {
+                                  deleteState.mutate(state._id);
+                                }
+                              }}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -707,8 +715,24 @@ const ResourcesCMSPage = () => {
             onAdd={() => openCreateItemDialog("resource")}
             onEdit={openEditItemDialog}
             onDuplicate={duplicateItem}
-            onArchive={(item) => patchStatus.mutate({ id: item._id, status: "archived", isActive: false })}
-            onDelete={(item) => deleteItem.mutate(item._id)}
+            onArchive={(item) => {
+              if (window.confirm(`Archive "${item.label}"?`)) {
+                patchStatus.mutate({
+                  id: item._id,
+                  status: "archived",
+                  isActive: false,
+                });
+              }
+            }}
+            onDelete={(item) => {
+              if (
+                window.confirm(
+                  `Delete "${item.label}"? A new archived version will be created.`
+                )
+              ) {
+                deleteItem.mutate(item._id);
+              }
+            }}
             onPublish={(item) => patchStatus.mutate({ id: item._id, status: "published", isActive: true })}
             onDraft={(item) => patchStatus.mutate({ id: item._id, status: "draft", isActive: true })}
             sortInput={sortInput}
@@ -732,8 +756,24 @@ const ResourcesCMSPage = () => {
             onAdd={() => openCreateItemDialog("tool")}
             onEdit={openEditItemDialog}
             onDuplicate={duplicateItem}
-            onArchive={(item) => patchStatus.mutate({ id: item._id, status: "archived", isActive: false })}
-            onDelete={(item) => deleteItem.mutate(item._id)}
+            onArchive={(item) => {
+              if (window.confirm(`Archive "${item.label}"?`)) {
+                patchStatus.mutate({
+                  id: item._id,
+                  status: "archived",
+                  isActive: false,
+                });
+              }
+            }}
+            onDelete={(item) => {
+              if (
+                window.confirm(
+                  `Delete "${item.label}"? A new archived version will be created.`
+                )
+              ) {
+                deleteItem.mutate(item._id);
+              }
+            }}
             onPublish={(item) => patchStatus.mutate({ id: item._id, status: "published", isActive: true })}
             onDraft={(item) => patchStatus.mutate({ id: item._id, status: "draft", isActive: true })}
             sortInput={sortInput}
