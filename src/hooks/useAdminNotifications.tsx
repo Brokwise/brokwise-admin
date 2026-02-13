@@ -4,7 +4,13 @@ import useAxios from "./use-axios";
 export interface AdminNotification {
   _id: string;
   type: string;
-  category: "USER_MANAGEMENT" | "PROPERTY" | "ENQUIRY" | "PAYMENT" | "BOOKING";
+  category:
+    | "USER_MANAGEMENT"
+    | "PROPERTY"
+    | "ENQUIRY"
+    | "MESSAGING"
+    | "PAYMENT"
+    | "BOOKING";
   title: string;
   description: string;
   relatedId?: string;

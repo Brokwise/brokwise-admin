@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   useGetConversations,
   useGetConversationDetails,
@@ -53,6 +54,7 @@ import {
 } from "@/lib/permissions";
 
 export default function MessagesPage() {
+  const searchParams = useSearchParams();
   const rawUserType = useAuthStore((state) => state.userType);
   const permissions = useAuthStore((state) => state.permissions);
   const userType = normalizeUserType(rawUserType);
@@ -196,6 +198,16 @@ export default function MessagesPage() {
       b.lastName?.toLowerCase().includes(brokerSearchQuery.toLowerCase()) ||
       b.email?.toLowerCase().includes(brokerSearchQuery.toLowerCase())
   );
+
+  const requestedConversationId = searchParams.get("conversationId");
+
+  useEffect(() => {
+    if (!requestedConversationId) return;
+
+    setSelectedConversationId((prev) =>
+      prev === requestedConversationId ? prev : requestedConversationId
+    );
+  }, [requestedConversationId]);
 
   return (
     <div className="flex h-[calc(100vh-2rem)] overflow-hidden rounded-xl border bg-background shadow-sm">

@@ -6,6 +6,7 @@ import {
   Users,
   Building2,
   MessageCircle,
+  MessageSquare,
   CreditCard,
   Calendar,
   CheckCheck,
@@ -19,12 +20,14 @@ import {
 } from "@/hooks/useAdminNotifications";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { resolveAdminNotificationRoute } from "@/lib/adminNotificationRoute";
 
 const categories = [
   { key: undefined, label: "All" },
   { key: "USER_MANAGEMENT", label: "Users" },
   { key: "PROPERTY", label: "Properties" },
   { key: "ENQUIRY", label: "Enquiries" },
+  { key: "MESSAGING", label: "Messages" },
   { key: "PAYMENT", label: "Payments" },
   { key: "BOOKING", label: "Bookings" },
 ] as const;
@@ -33,6 +36,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
   USER_MANAGEMENT: <Users className="h-4 w-4 text-blue-500" />,
   PROPERTY: <Building2 className="h-4 w-4 text-green-500" />,
   ENQUIRY: <MessageCircle className="h-4 w-4 text-orange-500" />,
+  MESSAGING: <MessageSquare className="h-4 w-4 text-indigo-500" />,
   PAYMENT: <CreditCard className="h-4 w-4 text-purple-500" />,
   BOOKING: <Calendar className="h-4 w-4 text-teal-500" />,
 };
@@ -56,8 +60,9 @@ const NotificationsPage = () => {
     if (!notification.read) {
       markRead.mutate(notification._id);
     }
-    if (notification.actionUrl) {
-      router.push(notification.actionUrl);
+    const targetRoute = resolveAdminNotificationRoute(notification);
+    if (targetRoute) {
+      router.push(targetRoute);
     }
   };
 
@@ -128,7 +133,7 @@ const NotificationsPage = () => {
                     >
                       {notification.title}
                     </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
+                    <p className="mt-0.5 text-sm text-muted-foreground whitespace-normal break-words">
                       {notification.description}
                     </p>
                   </div>
