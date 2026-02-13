@@ -344,11 +344,9 @@ const ResourcesCMSPage = () => {
         if (selectedStatusFilter !== "all" && item.status !== selectedStatusFilter) {
           return false;
         }
-        if (selectedStateFilter === "all") return true;
-        if (selectedStateFilter === "common") return item.scope === "common";
-        return item.scope === "state" && item.stateCode === selectedStateFilter;
+        return item.scope === "common";
       });
-  }, [items, selectedStatusFilter, selectedStateFilter]);
+  }, [items, selectedStatusFilter]);
 
   const openCreateStateDialog = () => {
     setEditingState(null);
@@ -429,8 +427,8 @@ const ResourcesCMSPage = () => {
       key: `${item.key}-copy`,
       label: `${item.label} Copy`,
       section: item.section,
-      scope: item.scope,
-      stateCode: item.stateCode,
+      scope: item.section === "tool" ? "common" : item.scope,
+      stateCode: item.section === "tool" ? undefined : item.stateCode,
       targetType: item.targetType,
       target: item.target,
       openMode: item.openMode,
@@ -444,12 +442,13 @@ const ResourcesCMSPage = () => {
   };
 
   const saveItem = async () => {
+    const scope = itemForm.section === "tool" ? "common" : itemForm.scope;
     const payload = {
       key: itemForm.key,
       label: itemForm.label,
       section: itemForm.section,
-      scope: itemForm.scope,
-      stateCode: itemForm.scope === "state" ? itemForm.stateCode : undefined,
+      scope,
+      stateCode: scope === "state" ? itemForm.stateCode : undefined,
       targetType: itemForm.targetType,
       target: itemForm.target,
       openMode: itemForm.openMode,
@@ -892,6 +891,7 @@ const ResourcesCMSPage = () => {
                     ...prev,
                     section: value,
                     scope: value === "tool" ? "common" : prev.scope,
+                    stateCode: value === "tool" ? undefined : prev.stateCode,
                   }))
                 }
               >
@@ -907,23 +907,27 @@ const ResourcesCMSPage = () => {
 
             <div className="space-y-2">
               <Label>Scope</Label>
-              <Select
-                value={itemForm.scope}
-                onValueChange={(value: ResourceScope) =>
-                  setItemForm((prev) => ({ ...prev, scope: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="common">Common</SelectItem>
-                  <SelectItem value="state">State</SelectItem>
-                </SelectContent>
-              </Select>
+              {itemForm.section === "tool" ? (
+                <Input value="Common (Global)" disabled />
+              ) : (
+                <Select
+                  value={itemForm.scope}
+                  onValueChange={(value: ResourceScope) =>
+                    setItemForm((prev) => ({ ...prev, scope: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="common">Common</SelectItem>
+                    <SelectItem value="state">State</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {itemForm.scope === "state" && (
+            {itemForm.section === "resource" && itemForm.scope === "state" && (
               <div className="space-y-2">
                 <Label>State</Label>
                 <Select
