@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SupportTicket, SupportTicketResponse } from '@/interfaces/support.interface';
+import { SupportTicket } from '@/interfaces/support.interface';
 import { SupportService } from '@/services/support.service';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

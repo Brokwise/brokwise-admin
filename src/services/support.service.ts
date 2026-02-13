@@ -4,7 +4,6 @@ import {
   SupportTicketFilters,
   SupportTicketListResponse,
   SupportTicketStats,
-  SupportTicketResponse
 } from '@/interfaces/support.interface';
 
 const BASE_URL = '/support/admin';

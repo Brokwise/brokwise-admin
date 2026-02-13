@@ -26,7 +26,6 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -38,7 +37,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { format } from 'date-fns';
-import { Search, Filter, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 
 const SupportPage = () => {
     const [filters, setFilters] = useState<SupportTicketFilters>({
@@ -57,7 +56,7 @@ const SupportPage = () => {
         queryFn: () => SupportService.getTickets(filters),
     });
 
-    const handleFilterChange = (key: keyof SupportTicketFilters, value: any) => {
+    const handleFilterChange = (key: keyof SupportTicketFilters, value: string | undefined) => {
         setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
     };
 
