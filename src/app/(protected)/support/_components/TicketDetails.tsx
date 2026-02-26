@@ -9,11 +9,31 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Send, User, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 interface TicketDetailsProps {
   ticket: SupportTicket;
   onClose: () => void;
 }
+
+interface SupportApiError {
+  message?: string;
+  errors?: Array<{ field?: string; message?: string }>;
+}
+
+const getReplyErrorMessage = (error: unknown): string => {
+  const axiosError = error as AxiosError<SupportApiError>;
+  const apiError = axiosError.response?.data;
+
+  if (apiError?.errors?.length) {
+    return apiError.errors
+      .map((validationError) => validationError.message)
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  return apiError?.message || 'Failed to send response';
+};
 
 const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket, onClose }) => {
   const [replyMessage, setReplyMessage] = useState('');
@@ -30,7 +50,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket, onClose }) => {
       onClose();
     },
     onError: (error) => {
-      toast.error('Failed to send response');
+      toast.error(getReplyErrorMessage(error));
       console.error(error);
     }
   });

@@ -18,12 +18,12 @@ export const SupportService = {
     });
 
     const response = await api.get(`${BASE_URL}/tickets`, { params });
-    return response.data;
+    return response.data.data;
   },
 
   getTicketById: async (ticketId: string): Promise<SupportTicket> => {
     const response = await api.get(`${BASE_URL}/tickets/${ticketId}`);
-    return response.data;
+    return response.data.data;
   },
 
   updateTicket: async (
@@ -31,7 +31,7 @@ export const SupportService = {
     data: { status?: string; priority?: string; assignedTo?: string; tags?: string[] }
   ): Promise<SupportTicket> => {
     const response = await api.patch(`${BASE_URL}/tickets/${ticketId}`, data);
-    return response.data;
+    return response.data.data;
   },
 
   addResponse: async (
@@ -39,7 +39,7 @@ export const SupportService = {
     data: { responseMessage: string; sendEmail?: boolean }
   ): Promise<SupportTicket> => {
     const response = await api.post(`${BASE_URL}/tickets/${ticketId}/responses`, data);
-    return response.data;
+    return response.data.data;
   },
 
   deleteTicket: async (ticketId: string): Promise<void> => {
@@ -48,20 +48,20 @@ export const SupportService = {
 
   getStats: async (): Promise<SupportTicketStats> => {
     const response = await api.get(`${BASE_URL}/stats`);
-    return response.data;
+    return response.data.data;
   },
 
   getTicketsByCategory: async (category: string, page = 1, limit = 20): Promise<SupportTicketListResponse> => {
     const response = await api.get(`${BASE_URL}/tickets/category/${encodeURIComponent(category)}`, {
       params: { page, limit }
     });
-    return response.data;
+    return response.data.data;
   },
 
   searchTickets: async (query: string, page = 1, limit = 20): Promise<SupportTicketListResponse> => {
     const response = await api.get(`${BASE_URL}/search`, {
       params: { q: query, page, limit }
     });
-    return response.data;
+    return response.data.data;
   }
 };

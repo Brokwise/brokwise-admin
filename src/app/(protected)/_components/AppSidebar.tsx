@@ -28,6 +28,7 @@ import {
   Users2Icon,
   ShieldCheck,
   LibraryBig,
+  MessageCircleQuestionIcon,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -274,6 +275,16 @@ const AppSidebar = () => {
                 <Link href="/jda-forms">
                   <File />
                   <span>JDA Forms</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Support Messages">
+                <Link href="/support">
+                  <MessageCircleQuestionIcon />
+                  <span>Support Message</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
