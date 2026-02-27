@@ -28,6 +28,18 @@ export interface Broker {
   profilePhoto?: string;
   plan?: { tier: string, phase: string, razorpaySubscriptionId: string, currentPeriodStart: string, currentPeriodEnd: string },
   usage?: { usage: { property_listing: number, enquiry_listing: number, submit_property_enquiry: number } }
+  creditHistory?: {
+    _id: string;
+    brokerId: string;
+    walletId: string;
+    type: string;
+    amount: number;
+    balanceAfter: number;
+    description: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  }[];
 }
 export const useBroker = (enabled: boolean = true) => {
   const api = useAxios();

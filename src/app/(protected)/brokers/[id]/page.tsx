@@ -8,7 +8,7 @@ import {
 } from "@/hooks/useBroker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/authStore";
 import { hasPermission, normalizeUserType } from "@/lib/permissions";
@@ -50,7 +50,6 @@ const BrokerDetailsPage = () => {
   const router = useRouter();
   const { data: broker, isLoading: isLoadingBroker } = useBrokerById(id as string);
   const { updateMutation } = useBrokerStatusUpdate();
-  console.log(broker?.usage)
   const rawUserType = useAuthStore((state) => state.userType);
   const permissions = useAuthStore((state) => state.permissions);
   const userType = normalizeUserType(rawUserType);
@@ -332,6 +331,68 @@ const BrokerDetailsPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Credit History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {broker.creditHistory && broker.creditHistory.length > 0 ? (
+            <div className="relative overflow-x-auto rounded-md border">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs uppercase bg-muted/50">
+                  <tr>
+                    <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
+                    <th className="px-4 py-3 font-medium text-muted-foreground">Description</th>
+                    <th className="px-4 py-3 font-medium text-muted-foreground text-right">Amount</th>
+                    <th className="px-4 py-3 font-medium text-muted-foreground text-right">Balance After</th>
+                    <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
+                    <th className="px-4 py-3 font-medium text-muted-foreground">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {broker.creditHistory.map((entry) => (
+                    <tr key={entry._id} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className="capitalize whitespace-nowrap">
+                          {entry.type.replace(/_/g, " ")}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {entry.description}
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold tabular-nums">
+                        {entry.amount > 0 ? "+" : ""}{entry.amount}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono tabular-nums">
+                        {entry.balanceAfter}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          variant={entry.status === "completed" ? "default" : "secondary"}
+                          className="capitalize"
+                        >
+                          {entry.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                        {formatDate(entry.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex h-[150px] items-center justify-center text-muted-foreground">
+              No credit history available
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
