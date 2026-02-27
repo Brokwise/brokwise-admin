@@ -29,6 +29,7 @@ import {
   ShieldCheck,
   LibraryBig,
   MessageCircleQuestionIcon,
+  ListChecks,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -259,6 +260,16 @@ const AppSidebar = () => {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Whitelist">
+                <Link href="/whitelist">
+                  <ListChecks />
+                  <span>Whitelist</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {canSeeResourcesCms && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Resources CMS">

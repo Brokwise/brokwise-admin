@@ -102,10 +102,12 @@ export function PackDialog({ open, onOpenChange, packToEdit }: PackDialogProps) 
   }, [packToEdit, form, open]);
 
   const onSubmit = async (values: FormValues) => {
+    console.log("Hello")
+    console.log(packToEdit)
     try {
       if (packToEdit) {
         await updatePack.mutateAsync({
-          packId: packToEdit._id,
+          packId: packToEdit.id,
           data: values,
         });
       } else {
@@ -136,7 +138,7 @@ export function PackDialog({ open, onOpenChange, packToEdit }: PackDialogProps) 
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Starter Pack" {...field} />
+                    <Input placeholder="e.g., Basic Pack" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

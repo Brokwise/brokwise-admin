@@ -1,5 +1,6 @@
 export interface ICreditPack {
   _id: string;
+  id: string;
   name: string;
   credits: number;
   priceInr: number;

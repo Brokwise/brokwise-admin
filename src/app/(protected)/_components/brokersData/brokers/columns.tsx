@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/authStore";
@@ -75,6 +76,24 @@ export const columns: ColumnDef<Broker>[] = [
     },
     cell: ({ row }) => {
       return <div className="text-sm">{row.getValue("email") || "--"}</div>;
+    },
+  },
+  {
+    accessorKey: "plan",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Plan
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const plan = row.getValue("plan") as { tier: string, phase: string };
+      return <div className="text-xs">{plan?.tier || "--"} {plan?.phase || "--"}</div>;
     },
   },
   {
@@ -158,7 +177,7 @@ export const columns: ColumnDef<Broker>[] = [
     header: "Status",
     cell: ({ row }) => {
       const broker = row.original;
-      return <StatusCell broker={broker} />;
+      return <Badge variant={broker.status === "approved" ? "default" : "secondary"}>{broker.status}</Badge>;
     },
     filterFn: (row, id, value) => {
       return value === "all" || row.getValue(id) === value;
@@ -212,36 +231,3 @@ export const columns: ColumnDef<Broker>[] = [
   },
 ];
 
-function StatusCell({ broker }: { broker: Broker }) {
-  const { updateMutation } = useBrokerStatusUpdate();
-  const rawUserType = useAuthStore((state) => state.userType);
-  const permissions = useAuthStore((state) => state.permissions);
-  const userType = normalizeUserType(rawUserType);
-  const canChangeStatus = hasPermission(userType, permissions, "broker:status");
-
-  return (
-    <Select
-      defaultValue={broker.status as BrokerStatus}
-      value={broker.status as BrokerStatus}
-      disabled={!canChangeStatus}
-      onValueChange={(value: BrokerStatus) => {
-        updateMutation({
-          status: value as BrokerStatus,
-          _id: broker._id,
-        });
-        broker.status = value;
-      }}
-    >
-      <SelectTrigger className="w-[130px]">
-        <SelectValue placeholder="Select Status" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="approved">Approved</SelectItem>
-        <SelectItem value="pending">Pending</SelectItem>
-        <SelectItem value="incomplete">Incomplete</SelectItem>
-        <SelectItem value="blacklisted">Blacklisted</SelectItem>
-        <SelectItem value="rejected">Rejected</SelectItem>
-      </SelectContent>
-    </Select>
-  );
-}

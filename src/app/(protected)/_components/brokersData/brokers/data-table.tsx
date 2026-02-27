@@ -117,7 +117,6 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Handle status filter separately
   const handleStatusFilter = (value: string) => {
     setStatusFilter(value);
     if (value === "all") {
@@ -136,11 +135,9 @@ export function DataTable<TData, TValue>({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Toolbar */}
         <div className="flex flex-col gap-4 mb-6">
-          {/* Search and Filters Row */}
+
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Global Search */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -151,7 +148,6 @@ export function DataTable<TData, TValue>({
               />
             </div>
 
-            {/* Status Filter */}
             <div className="w-full sm:w-48">
               <Select value={statusFilter} onValueChange={handleStatusFilter}>
                 <SelectTrigger>
@@ -168,7 +164,6 @@ export function DataTable<TData, TValue>({
               </Select>
             </div>
 
-            {/* Column Visibility */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full sm:w-auto">
@@ -198,7 +193,6 @@ export function DataTable<TData, TValue>({
             </DropdownMenu>
           </div>
 
-          {/* Results Info */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
               Showing {table.getFilteredRowModel().rows.length} of {data.length}{" "}
@@ -229,14 +223,12 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
 
-        {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
@@ -246,7 +238,6 @@ export function DataTable<TData, TValue>({
           </Alert>
         )}
 
-        {/* Table */}
         {!isLoading && !error && (
           <>
             <div className="rounded-md border">
@@ -260,9 +251,9 @@ export function DataTable<TData, TValue>({
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                           </TableHead>
                         );
                       })}
@@ -306,7 +297,6 @@ export function DataTable<TData, TValue>({
               </Table>
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
                 Page {table.getState().pagination.pageIndex + 1} of{" "}

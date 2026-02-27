@@ -5,6 +5,7 @@ import {
   TierConfig,
   TierLimitsConfig,
   UpdateTierLimitsDTO,
+  UpdateActivationLimitsDTO,
   UpdateAllTierLimitsDTO,
   UpdateCreditsPriceDTO,
   UpdateFullConfigDTO,
@@ -82,6 +83,36 @@ export const useUpdateTierLimits = () => {
     }) => {
       toast.error(
         error.response?.data?.message || "Failed to update tier limits"
+      );
+    },
+  });
+};
+
+export const useUpdateActivationLimits = () => {
+  const api = useAxios();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: UpdateActivationLimitsDTO) => {
+      const response = await api.put<ApiResponse<TierLimitsConfig>>(
+        "/admin/tier-config/activation-limits",
+        data
+      );
+      return response.data.data;
+    },
+    onSuccess: (_, variables) => {
+      toast.success(`${variables.tier} activation limits updated successfully`);
+      queryClient.invalidateQueries({ queryKey: ["tier-config"] });
+    },
+    onError: (error: {
+      response?: {
+        data?: {
+          message?: string;
+        };
+      };
+    }) => {
+      toast.error(
+        error.response?.data?.message || "Failed to update activation limits"
       );
     },
   });

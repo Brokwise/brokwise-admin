@@ -1,7 +1,7 @@
 export enum TIER {
-  STARTER = "STARTER",
+  BASIC = "BASIC",
   ESSENTIAL = "ESSENTIAL",
-  ELITE = "ELITE",
+  PRO = "PRO",
 }
 
 export interface TierLimitsConfig {
@@ -22,6 +22,7 @@ export interface CreditsPriceConfig {
 export interface TierConfig {
   _id?: string;
   tierLimits: Record<TIER, TierLimitsConfig>;
+  activationLimits: Record<TIER, TierLimitsConfig>;
   creditsPrice: CreditsPriceConfig;
   isActive: boolean;
   createdAt?: string;
@@ -29,6 +30,11 @@ export interface TierConfig {
 }
 
 export interface UpdateTierLimitsDTO {
+  tier: TIER;
+  limits: Partial<TierLimitsConfig>;
+}
+
+export interface UpdateActivationLimitsDTO {
   tier: TIER;
   limits: Partial<TierLimitsConfig>;
 }
@@ -43,5 +49,6 @@ export interface UpdateCreditsPriceDTO {
 
 export interface UpdateFullConfigDTO {
   tierLimits: Record<TIER, TierLimitsConfig>;
+  activationLimits: Record<TIER, TierLimitsConfig>;
   creditsPrice: CreditsPriceConfig;
 }

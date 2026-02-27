@@ -57,7 +57,7 @@ type FormValues = z.output<typeof formSchema>;
 interface CreditsPriceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentPrices: CreditsPriceConfig;
+  currentPrices: CreditsPriceConfig | null;
 }
 
 const fieldLabels: Record<keyof CreditsPriceConfig, string> = {
@@ -91,6 +91,15 @@ export function CreditsPriceDialog({
   useEffect(() => {
     if (currentPrices) {
       form.reset(currentPrices);
+    } else {
+      form.reset({
+        REQUEST_CONTACT: 0,
+        MARK_PROPERTY_AS_FEATURED: 0,
+        MARK_ENQUIRY_AS_URGENT: 0,
+        PROPERTY_LISTING: 0,
+        ENQUIRY_LISTING: 0,
+        SUBMIT_PROPERTY_ENQUIRY: 0,
+      });
     }
   }, [currentPrices, form, open]);
 
@@ -109,7 +118,7 @@ export function CreditsPriceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Credit Prices</DialogTitle>
+          <DialogTitle>{currentPrices ? "Edit" : "Configure"} Credit Prices</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -146,7 +155,7 @@ export function CreditsPriceDialog({
                 {updateCreditsPrice.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Save Changes
+                {currentPrices ? "Save Changes" : "Create"}
               </Button>
             </DialogFooter>
           </form>

@@ -26,6 +26,8 @@ export interface Broker {
   createdAt: string;
   brokerId: string;
   profilePhoto?: string;
+  plan?: { tier: string, phase: string, razorpaySubscriptionId: string, currentPeriodStart: string, currentPeriodEnd: string },
+  usage?: { usage: { property_listing: number, enquiry_listing: number, submit_property_enquiry: number } }
 }
 export const useBroker = (enabled: boolean = true) => {
   const api = useAxios();
@@ -40,7 +42,14 @@ export const useBroker = (enabled: boolean = true) => {
   });
   return { brokers, isLoadingBrokers, errorBrokers };
 };
-
+export const useBrokerById = (id: string) => {
+  const api = useAxios();
+  return useQuery<Broker>({
+    queryKey: ["broker", id],
+    queryFn: async () => (await api.get(`/admin/getBroker/${id}`)).data.data,
+    enabled: !!id,
+  });
+};
 export const useBrokerStatusUpdate = () => {
   const api = useAxios();
   const {

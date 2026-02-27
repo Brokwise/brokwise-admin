@@ -3,12 +3,11 @@
 import { useState } from "react";
 import {
   useGetTierConfig,
-  useInitializeTierConfig,
   useResetTierConfig,
 } from "@/hooks/useTierConfig";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Sparkles, Settings2 } from "lucide-react";
+import { Loader2, RefreshCw, Layers, Zap, Settings2 } from "lucide-react";
 import { TierLimitsCard } from "./tier-limits-card";
 import { CreditsPriceCard } from "./credits-price-card";
 import {
@@ -23,14 +22,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function TierConfigSection() {
-  const { data: config, isLoading, isError } = useGetTierConfig();
-  const initializeConfig = useInitializeTierConfig();
+  const { data: config, isLoading } = useGetTierConfig();
   const resetConfig = useResetTierConfig();
   const [showResetDialog, setShowResetDialog] = useState(false);
-
-  const handleInitialize = () => {
-    initializeConfig.mutate();
-  };
 
   const handleReset = () => {
     resetConfig.mutate();
@@ -47,35 +41,6 @@ export function TierConfigSection() {
     );
   }
 
-  if (isError || !config) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Settings2 className="h-5 w-5" />
-              <CardTitle>Tier Configuration</CardTitle>
-            </div>
-            <Button
-              onClick={handleInitialize}
-              disabled={initializeConfig.isPending}
-            >
-              {initializeConfig.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              Initialize Configuration
-            </Button>
-          </div>
-          <CardDescription>
-            No configuration found. Initialize with default values to get started.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <Card>
@@ -86,29 +51,49 @@ export function TierConfigSection() {
               <div>
                 <CardTitle>Tier Configuration</CardTitle>
                 <CardDescription>
-                  Manage tier limits and credit prices for the platform
+                  {config
+                    ? "Manage tier limits, activation limits, and credit prices for the platform"
+                    : "No configuration found. Configure tier limits and credit prices to get started."}
                 </CardDescription>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowResetDialog(true)}
-              disabled={resetConfig.isPending}
-            >
-              {resetConfig.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
-              Reset to Defaults
-            </Button>
+            {config && (
+              <Button
+                variant="outline"
+                onClick={() => setShowResetDialog(true)}
+                disabled={resetConfig.isPending}
+              >
+                {resetConfig.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Reset to Defaults
+              </Button>
+            )}
           </div>
         </CardHeader>
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <TierLimitsCard tierLimits={config.tierLimits} />
-        <CreditsPriceCard creditsPrice={config.creditsPrice} />
+        <TierLimitsCard
+          tierLimits={config?.tierLimits ?? null}
+          title="Tier Limits"
+          description="Free limits available per tier (monthly)"
+          icon={Layers}
+          limitType="regular"
+        />
+        <TierLimitsCard
+          tierLimits={config?.activationLimits ?? null}
+          title="Activation Limits"
+          description="Limits included in activation packs"
+          icon={Zap}
+          limitType="activation"
+        />
+      </div>
+
+      <div className="grid gap-6">
+        <CreditsPriceCard creditsPrice={config?.creditsPrice ?? null} />
       </div>
 
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
@@ -116,7 +101,7 @@ export function TierConfigSection() {
           <AlertDialogHeader>
             <AlertDialogTitle>Reset to Default Configuration?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will reset all tier limits and credit prices to their default
+              This will reset all tier limits, activation limits, and credit prices to their default
               values. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
